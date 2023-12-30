@@ -20,6 +20,6 @@ const UserSchema = new Schema(
   }
 );
 
-const User = mongoose.model("user", UserSchema); // En la base de datos se llamara user
+const User = mongoose.model("user", UserSchema); // En la base de datos se llamara users
 
 export default User;
