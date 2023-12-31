@@ -5,6 +5,13 @@ import token from "../service/token";
 export default {
   register: async (req, res) => {
     try {
+      const VALID_USER = await models.User.findOne({ email: req.body.email });
+
+      if (VALID_USER)
+        return res
+          .status(200)
+          .json({ message: 403, msg: "EL USUARIO INGRESADO YA EXISTE" });
+
       req.body.password = await bcrypt.hash(req.body.password, 10);
 
       const User = await models.User.create(req.body);
@@ -62,7 +69,7 @@ export default {
       const user = await models.User.findOne({
         email: req.body.email,
         state: 1,
-        rol: "admin"
+        rol: "admin",
       });
 
       if (user) {
