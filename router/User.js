@@ -5,6 +5,7 @@ const router = routerx();
 
 router
   .post("/register", userController.register)
-  .post("/login", userController.login);
+  .post("/login", userController.login)
+  .post("/login_admin", userController.login);
 
 export default router;
