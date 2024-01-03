@@ -11,7 +11,7 @@ const UserSchema = new Schema(
     state: { type: Number, default: 1 }, // 1 es activo y 2 es inactivo
     phone: { type: String, maxlength: 30, required: false },
     birthday: { type: String, maxlength: 30, required: false },
-    is_instructor: { type: Number, required: false, default: null }, // 1 es instructor
+    // is_instructor: { type: Number, required: false, default: null }, // 1 es instructor
     profession: { type: String, maxlength: 250, required: false },
     description: { type: String, required: false },
   },
