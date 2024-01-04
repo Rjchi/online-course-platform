@@ -142,7 +142,7 @@ export default {
   },
   getImage: async (req, res) => {
     try {
-      const img = req.params['img'];
+      const img = req.params["img"];
 
       if (!img) return res.status(500).json({ msg: "OCURRIO UN PROBLEMA" });
 
@@ -150,9 +150,9 @@ export default {
        * | Valicamos si el archivo existe o no
        * | con stat de fs
        * ----------------------------------------*/
-      fs.stat('./uploads/user/' + img, function(err) {
+      fs.stat("./uploads/user/" + img, function (err) {
         if (!err) {
-          let path_img = './uploads/user/' + img;
+          let path_img = "./uploads/user/" + img;
 
           /**------------------------------------------------------------------
            * | Asi visualizamos desde la api la imagen que estamos almacenando
@@ -162,7 +162,7 @@ export default {
           /**----------------------------------------------------------
            * | En caso de error retornamos una imagen por defecto
            * ----------------------------------------------------------*/
-          let path_img = './uploads/default.png';
+          let path_img = "./uploads/default.png";
 
           return res.status(200).sendFile(path.resolve(path_img));
         }
@@ -176,7 +176,10 @@ export default {
   },
   update: async (req, res) => {
     try {
-      const VALID_USER = await models.User.findOne({ email: req.body.email, _id: { $ne: req.body._id } });
+      const VALID_USER = await models.User.findOne({
+        email: req.body.email,
+        _id: { $ne: req.body._id },
+      });
 
       if (VALID_USER)
         return res
@@ -197,8 +200,13 @@ export default {
       /**-----------------------------------------------------------
        * | Ubicamos el usuario en base al id y luego lo editamos
        * -----------------------------------------------------------*/
-      const User = await models.User.findByIdAndUpdate({ id: req.body._id }, req.body);
-      res.status(200).json({ user: User });
+      const User = await models.User.findByIdAndUpdate(
+        { id: req.body._id },
+        req.body
+      );
+      res
+        .status(200)
+        .json({ msg: "EL USUARIO SE EDITO CORRECTAMENTE", user: User });
     } catch (error) {
       console.log(error.message);
       return res.status(500).send({
@@ -212,20 +220,36 @@ export default {
 
       let USERS = await models.User.find({
         $or: [
-          {'name': new RegExp(search, 'i')}, // Generamos una expresión regular para que no distinga mayusculas de minusculas
-          {'surname': new RegExp(search, 'i')},
-          {'email': new RegExp(search, 'i')}
-        ]
-      }).sort({'createdAt': -1}); // Ordenamos de manera decendente en base al campo createdAt
+          { name: new RegExp(search, "i") }, // Generamos una expresión regular para que no distinga mayusculas de minusculas
+          { surname: new RegExp(search, "i") },
+          { email: new RegExp(search, "i") },
+        ],
+      }).sort({ createdAt: -1 }); // Ordenamos de manera decendente en base al campo createdAt
 
       return res.status(200).json({
-        users: USERS
-      })
+        users: USERS,
+      });
     } catch (error) {
       console.log(error.message);
       return res.status(500).send({
         msg: "OCURRIO UN PROBLEMA",
       });
     }
-  }
+  },
+  remove: async (req, res) => {
+    try {
+      let _id = req.params["id"];
+
+      await models.User.findByIdAndDelete({ _id });
+
+      return res.status(200).json({
+        msg: "EL USUARIO SE ELIMINO CORRECTAMENTE",
+      });
+    } catch (error) {
+      console.log(error.message);
+      return res.status(500).send({
+        msg: "OCURRIO UN PROBLEMA",
+      });
+    }
+  },
 };
