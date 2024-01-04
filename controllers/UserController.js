@@ -206,4 +206,26 @@ export default {
       });
     }
   },
+  list: async (req, res) => {
+    try {
+      const search = req.query.search;
+
+      let USERS = await models.User.find({
+        $or: [
+          {'name': new RegExp(search, 'i')}, // Generamos una expresión regular para que no distinga mayusculas de minusculas
+          {'surname': new RegExp(search, 'i')},
+          {'email': new RegExp(search, 'i')}
+        ]
+      }).sort({'createdAt': -1}); // Ordenamos de manera decendente en base al campo createdAt
+
+      return res.status(200).json({
+        users: USERS
+      })
+    } catch (error) {
+      console.log(error.message);
+      return res.status(500).send({
+        msg: "OCURRIO UN PROBLEMA",
+      });
+    }
+  }
 };
