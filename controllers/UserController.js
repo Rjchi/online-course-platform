@@ -3,6 +3,7 @@ import path from "path";
 import bcrypt from "bcryptjs";
 
 import models from "../models";
+import resource from "../resource"; // Esto es para formatiar la data que vamos a enviar al cliente
 import token from "../service/token";
 
 export default {
@@ -132,7 +133,8 @@ export default {
       }
 
       const User = await models.User.create(req.body);
-      res.status(200).json({ user: User });
+
+      return res.status(200).json({ user: resource.User.apiResourceUser(User) });
     } catch (error) {
       console.log(error.messge);
       return res.status(500).send({
@@ -200,13 +202,24 @@ export default {
       /**-----------------------------------------------------------
        * | Ubicamos el usuario en base al id y luego lo editamos
        * -----------------------------------------------------------*/
-      const User = await models.User.findByIdAndUpdate(
+       await models.User.findByIdAndUpdate(
         { id: req.body._id },
         req.body
       );
-      res
+
+      /**--------------------------------------------------
+       * | Aqui volvemos a hacer la busqueda del usuario
+       * | Para que nos muestre la información actualizada
+       * | No la que teniamos antes de actualizar
+       * --------------------------------------------------*/
+      const NUser = await models.User.findById({ _id: req.body._id });
+
+      return res
         .status(200)
-        .json({ msg: "EL USUARIO SE EDITO CORRECTAMENTE", user: User });
+        .json({
+          msg: "EL USUARIO SE EDITO CORRECTAMENTE",
+          user: resource.User.apiResourceUser(NUser),
+        });
     } catch (error) {
       console.log(error.message);
       return res.status(500).send({
@@ -225,6 +238,13 @@ export default {
           { email: new RegExp(search, "i") },
         ],
       }).sort({ createdAt: -1 }); // Ordenamos de manera decendente en base al campo createdAt
+
+      /**----------------------------------------------------------------
+       * | Iteramos los usuarios y les damos un formato individualmente
+       * ----------------------------------------------------------------*/
+      USERS = USERS.map((user) => {
+        return resource.User.apiResourceUser(user);
+      });
 
       return res.status(200).json({
         users: USERS,
