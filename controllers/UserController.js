@@ -234,6 +234,12 @@ export default {
           { surname: new RegExp(search, "i") },
           { email: new RegExp(search, "i") },
         ],
+
+        /**-------------------------------------------------------------------
+         * | Aqui filtramos los roles que queremos que sean listados
+         * | En este caso solo queremos usuarios de rol admin y instructor
+         * -------------------------------------------------------------------*/
+        rol: { $in: ["admin", "instructor"] },
       }).sort({ createdAt: -1 }); // Ordenamos de manera decendente en base al campo createdAt
 
       /**----------------------------------------------------------------
