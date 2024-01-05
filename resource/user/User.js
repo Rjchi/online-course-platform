@@ -1,5 +1,5 @@
 export default {
-  apiResourceUser: async (user) => {
+  apiResourceUser: (user) => {
     return {
       _id: user._id,
       rol: user.rol,

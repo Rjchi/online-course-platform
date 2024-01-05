@@ -243,10 +243,8 @@ export default {
         return resource.User.apiResourceUser(user);
       });
 
-      let FormatUsers = await Promise.all(USERS);
-
       return res.status(200).json({
-        users: FormatUsers,
+        users: USERS,
       });
     } catch (error) {
       console.log(error.message);
