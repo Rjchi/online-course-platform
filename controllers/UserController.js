@@ -134,7 +134,9 @@ export default {
 
       const User = await models.User.create(req.body);
 
-      return res.status(200).json({ user: resource.User.apiResourceUser(User) });
+      return res
+        .status(200)
+        .json({ user: resource.User.apiResourceUser(User) });
     } catch (error) {
       console.log(error.messge);
       return res.status(500).send({
@@ -202,10 +204,7 @@ export default {
       /**-----------------------------------------------------------
        * | Ubicamos el usuario en base al id y luego lo editamos
        * -----------------------------------------------------------*/
-       await models.User.findByIdAndUpdate(
-        { id: req.body._id },
-        req.body
-      );
+      await models.User.findByIdAndUpdate({ id: req.body._id }, req.body);
 
       /**--------------------------------------------------
        * | Aqui volvemos a hacer la busqueda del usuario
@@ -214,12 +213,10 @@ export default {
        * --------------------------------------------------*/
       const NUser = await models.User.findById({ _id: req.body._id });
 
-      return res
-        .status(200)
-        .json({
-          msg: "EL USUARIO SE EDITO CORRECTAMENTE",
-          user: resource.User.apiResourceUser(NUser),
-        });
+      return res.status(200).json({
+        msg: "EL USUARIO SE EDITO CORRECTAMENTE",
+        user: resource.User.apiResourceUser(NUser),
+      });
     } catch (error) {
       console.log(error.message);
       return res.status(500).send({
@@ -246,8 +243,10 @@ export default {
         return resource.User.apiResourceUser(user);
       });
 
+      let FormatUsers = await Promise.all(USERS);
+
       return res.status(200).json({
-        users: USERS,
+        users: FormatUsers,
       });
     } catch (error) {
       console.log(error.message);
