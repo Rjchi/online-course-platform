@@ -204,7 +204,7 @@ export default {
       /**-----------------------------------------------------------
        * | Ubicamos el usuario en base al id y luego lo editamos
        * -----------------------------------------------------------*/
-      await models.User.findByIdAndUpdate({ id: req.body._id }, req.body);
+      await models.User.findByIdAndUpdate({ _id: req.body._id }, req.body);
 
       /**--------------------------------------------------
        * | Aqui volvemos a hacer la busqueda del usuario
