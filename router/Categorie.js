@@ -11,9 +11,11 @@ const path = multiparty({
 const router = routerx();
 
 router
-.get("/list", [auth.verifyAdmin], categorieController.list)
-.put("/update", [auth.verifyAdmin, path], categorieController.update)
-.delete("/remove/:id", [auth.verifyAdmin], categorieController.remove)
-.post("/register", [auth.verifyAdmin, path], categorieController.register)
+  .get("/list", [auth.verifyAdmin], categorieController.list)
+  .put("/update", [auth.verifyAdmin, path], categorieController.update)
+  .delete("/remove/:id", [auth.verifyAdmin], categorieController.remove)
+  .post("/register", [auth.verifyAdmin, path], categorieController.register)
+
+  .get("/imagen-categorie/:img", categorieController.getImage)
 
 export default router;
