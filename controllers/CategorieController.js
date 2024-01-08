@@ -1,4 +1,5 @@
 import models from "../models";
+import resource from "../resource";
 
 export default {
   register: async (req, res) => {
@@ -24,7 +25,7 @@ export default {
       const NewCategorie = await models.Categorie.create(req.body);
 
       return res.status(200).json({
-        categorie: NewCategorie,
+        categorie: resource.Categorie.apiResourceCategorie(NewCategorie),
       });
     } catch (error) {
       console.log(error.message);
@@ -59,8 +60,12 @@ export default {
         req.body
       );
 
+      const NEditCategorie = await models.Categorie.findById({
+        _id: EditCategorie._id,
+      });
+
       return res.status(200).json({
-        categorie: EditCategorie,
+        categorie: resource.Categorie.apiResourceCategorie(NEditCategorie),
       });
     } catch (error) {
       console.log(error.message);
@@ -76,6 +81,10 @@ export default {
       const CategorieList = await models.Categorie.find({
         $or: [{ title: new RegExp(search, "i") }],
       }).sort({ createdAt: -1 });
+
+      CategorieList = CategorieList.map((categorie) => {
+        return resource.Categorie.apiResourceCategorie(categorie);
+      })
 
       return res.status(200).json({
         categories: CategorieList,
