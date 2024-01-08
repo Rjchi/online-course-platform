@@ -226,14 +226,28 @@ export default {
   },
   list: async (req, res) => {
     try {
+      const rol = req.query.rol;
       const search = req.query.search;
+      let filter = [{ name: new RegExp("", "i") }];
 
-      let USERS = await models.User.find({
-        $or: [
-          { name: new RegExp(search, "i") }, // Generamos una expresión regular para que no distinga mayusculas de minusculas
+      if (search) {
+        filter = [
+          { name: new RegExp(search, "i") }, // Generamos una expresión regular para que no distinga mayusculas de minusculas y poder filtrar
           { surname: new RegExp(search, "i") },
           { email: new RegExp(search, "i") },
-        ],
+        ];
+      }
+
+      if (rol) {
+        if (!search) {
+          filter = [];
+        }
+
+        filter.push({ rol: rol });
+      }
+
+      let USERS = await models.User.find({
+        $or: filter,
 
         /**-------------------------------------------------------------------
          * | Aqui filtramos los roles que queremos que sean listados
