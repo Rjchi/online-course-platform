@@ -101,4 +101,28 @@ export default {
       });
     }
   },
+  getImage: async (req, res) => {
+    try {
+      const img = req.params["img"];
+
+      if (!img) return res.status(500).json({ msg: "OCURRIO UN PROBLEMA" });
+
+      fs.stat("./uploads/categorie" + img, function (err) {
+        if (!err) {
+          let path_img = "./uploads/categorie" + img;
+
+          return res.status(200).sendFile(path.resolve(path_img));
+        } else {
+          let path_img = "./uploads/default.png";
+
+          return res.status(200).sendFile(path.resolve(path_img));
+        }
+      });
+    } catch (error) {
+      console.log(error.messge);
+      return res.status(500).send({
+        msg: "OCURRIO UN PROBLEMA",
+      });
+    }
+  },
 };
