@@ -78,7 +78,7 @@ export default {
     try {
       const search = req.query.search;
 
-      const CategorieList = await models.Categorie.find({
+      let CategorieList = await models.Categorie.find({
         $or: [{ title: new RegExp(search, "i") }],
       }).sort({ createdAt: -1 });
 
@@ -90,7 +90,7 @@ export default {
         categories: CategorieList,
       });
     } catch (error) {
-      console.log(error.message);
+      console.log(error);
       return res.status(500).json({
         msg: "HUBO UN ERROR",
       });
