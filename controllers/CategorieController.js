@@ -125,7 +125,7 @@ export default {
 
           return res.status(200).sendFile(path.resolve(path_img));
         } else {
-          let path_img = "./uploads/default.png";
+          let path_img = "./uploads/default.jpg";
 
           return res.status(200).sendFile(path.resolve(path_img));
         }

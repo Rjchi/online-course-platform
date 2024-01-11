@@ -166,7 +166,7 @@ export default {
           /**----------------------------------------------------------
            * | En caso de error retornamos una imagen por defecto
            * ----------------------------------------------------------*/
-          let path_img = "./uploads/default.png";
+          let path_img = "./uploads/default.jpg";
 
           return res.status(200).sendFile(path.resolve(path_img));
         }
