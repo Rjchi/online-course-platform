@@ -2,7 +2,7 @@ export default {
   apiResourceCategorie: (categorie) => {
     return {
       _id: categorie._id,
-      title: categorie.rol,
+      title: categorie.title,
       imagen: categorie.imagen
         ? process.env.URL_BACKEND +
           "/api/categories/imagen-categorie/" +
