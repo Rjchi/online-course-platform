@@ -3,7 +3,7 @@ export default {
     return {
       _id: categorie._id,
       title: categorie.rol,
-      imagen: categorie.avatar
+      imagen: categorie.imagen
         ? process.env.URL_BACKEND +
           "/api/categories/imagen-categorie/" +
           categorie.imagen
