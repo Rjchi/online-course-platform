@@ -1,3 +1,6 @@
+import fs from "fs";
+import path from "path";
+
 import models from "../models";
 import resource from "../resource";
 
@@ -116,13 +119,13 @@ export default {
 
       if (!img) return res.status(500).json({ msg: "OCURRIO UN PROBLEMA" });
 
-      fs.stat("./uploads/categorie" + img, function (err) {
+      fs.stat("./uploads/categorie/" + img, function (err) {
         if (!err) {
-          let path_img = "./uploads/categorie" + img;
+          let path_img = "./uploads/categorie/" + img;
 
           return res.status(200).sendFile(path.resolve(path_img));
         } else {
-          let path_img = "./uploads/default.png";
+          let path_img = "./uploads/default.jpg";
 
           return res.status(200).sendFile(path.resolve(path_img));
         }
