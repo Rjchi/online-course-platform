@@ -1,15 +1,20 @@
+import multiparty from "connect-multiparty";
 import routerx from "express-promise-router";
 
 import auth from "../service/auth";
 import courseController from "../controllers/CourseController";
 
+const path = multiparty({
+  uploadDir: "./uploads/course",
+});
+
 const router = routerx();
 
 router
-  .post("/register", [auth.verifyAdmin], courseController.register)
-  .put("/update", [auth.verifyAdmin], courseController.update)
+  .get("/imagen-course/:img", courseController.getImage)
   .get("/list", [auth.verifyAdmin], courseController.list)
+  .put("/update", [auth.verifyAdmin, path], courseController.update)
   .delete("/remove/:id", [auth.verifyAdmin], courseController.remove)
-  .get("/imagen-course/:img", courseController.getImage);
+  .post("/register", [auth.verifyAdmin, path], courseController.register);
 
 export default router;
