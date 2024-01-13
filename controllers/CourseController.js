@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 
 import models from "../models";
+import resource from "../resource";
 
 export default {
   register: async (req, res) => {
@@ -88,8 +89,16 @@ export default {
   },
   list: async (req, res) => {
     try {
+      /**---------------------------------------------------------
+       * | Con populate podemos traer la categoria y el usuario
+       * | ya que son los que estan relacionados con un curso
+       * ---------------------------------------------------------*/
       const courses = await models.Course.find({
         $and: [{ title: new RegExp(req.query.search, "i") }],
+      }).populate(["categorie", "user"]);
+
+      courses = courses.map((course) => {
+        return resource.Course.apiResourceCourse(course);
       });
 
       return res.status(200).json({
