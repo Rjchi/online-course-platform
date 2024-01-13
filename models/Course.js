@@ -24,4 +24,3 @@ const CourseSchema = new Schema(
 const Course = mongoose.model("course", CourseSchema);
 
 export default Course;
-g
