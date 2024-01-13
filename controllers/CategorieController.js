@@ -79,15 +79,29 @@ export default {
   },
   list: async (req, res) => {
     try {
+      const state = req.query.state;
       const search = req.query.search;
 
+      let filter = [{ title: new RegExp("", "i") }];
+
+      if (search) {
+        filter = [{ title: new RegExp(search, "i") }];
+      }
+
+      if (state) {
+        if (!search) {
+          filter = [];
+        }
+        filter = [{ state: state }];
+      }
+
       let CategorieList = await models.Categorie.find({
-        $or: [{ title: new RegExp(search, "i") }],
+        $or: filter,
       }).sort({ createdAt: -1 });
 
       CategorieList = CategorieList.map((categorie) => {
         return resource.Categorie.apiResourceCategorie(categorie);
-      })
+      });
 
       return res.status(200).json({
         categories: CategorieList,
