@@ -135,7 +135,7 @@ export default {
       /**-----------------------------------------
        * | Traemos solo las categorias activas
        * -----------------------------------------*/
-      const categories = await models.Categorie.find({ state: 1 });
+      let categories = await models.Categorie.find({ state: 1 });
 
       categories = categories.map((categorie) => {
         return {
@@ -144,7 +144,7 @@ export default {
         };
       });
 
-      const users = await models.User.find({ state: 1, rol: "instructor" });
+      let users = await models.User.find({ state: 1, rol: "instructor" });
 
       users = users.map((user) => {
         return {
