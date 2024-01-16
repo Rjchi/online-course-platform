@@ -130,6 +130,41 @@ export default {
       });
     }
   },
+  config_all: async (req, res) => {
+    try {
+      /**-----------------------------------------
+       * | Traemos solo las categorias activas
+       * -----------------------------------------*/
+      const categories = await models.Categorie.find({ state: 1 });
+
+      categories = categories.map((categorie) => {
+        return {
+          _id: categorie._id,
+          title: categorie.title,
+        };
+      });
+
+      const users = await models.User.find({ state: 1, rol: "instructor" });
+
+      users = users.map((user) => {
+        return {
+          _id: user._id,
+          name: user.name,
+          surname: user.surname,
+        };
+      });
+
+      return res.status(200).json({
+        categories,
+        users,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        msg: "OCURRIO UN ERROR",
+      });
+    }
+  },
   getImage: async (req, res) => {
     try {
       const img = req.params["img"];
