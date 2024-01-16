@@ -29,7 +29,7 @@ export default {
         const img_path = req.files.portada.path;
         const imagen_name = img_path.split("\\")[2];
 
-        req.body.imagen = imagen_name;
+        req.body.image = imagen_name;
       }
 
       const NewCourse = await models.Course.create(req.body);
@@ -122,6 +122,41 @@ export default {
 
       return res.status(200).json({
         msg: "EL CURSO SE ELIMINO CORRECTAMENTE",
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        msg: "OCURRIO UN ERROR",
+      });
+    }
+  },
+  config_all: async (req, res) => {
+    try {
+      /**-----------------------------------------
+       * | Traemos solo las categorias activas
+       * -----------------------------------------*/
+      let categories = await models.Categorie.find({ state: 1 });
+
+      categories = categories.map((categorie) => {
+        return {
+          _id: categorie._id,
+          title: categorie.title,
+        };
+      });
+
+      let users = await models.User.find({ state: 1, rol: "instructor" });
+
+      users = users.map((user) => {
+        return {
+          _id: user._id,
+          name: user.name,
+          surname: user.surname,
+        };
+      });
+
+      return res.status(200).json({
+        categories,
+        users,
       });
     } catch (error) {
       console.log(error);
