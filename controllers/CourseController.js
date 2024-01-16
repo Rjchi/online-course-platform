@@ -29,7 +29,7 @@ export default {
         const img_path = req.files.portada.path;
         const imagen_name = img_path.split("\\")[2];
 
-        req.body.imagen = imagen_name;
+        req.body.image = imagen_name;
       }
 
       const NewCourse = await models.Course.create(req.body);
