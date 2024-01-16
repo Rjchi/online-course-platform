@@ -14,7 +14,7 @@ const CourseSchema = new Schema(
     requirements:   { type: String, required: true }, // ["", "", ""]
     who_is_it_for:  { type: String, required: true }, // ["", "", ""]
     title:          { type: String, maxlength: 250, required: true },
-    image:          { type: Number, maxlength: 250, required: true },
+    image:          { type: String, maxlength: 250, required: true },
     user:           { type: Schema.ObjectId, ref: "user", required: true }, // Relación con un usuario
     categorie:      { type: Schema.ObjectId, ref: "categorie", required: true }, // Relación con una categoria
   },
