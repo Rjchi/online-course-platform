@@ -93,7 +93,7 @@ export default {
        * | Con populate podemos traer la categoria y el usuario
        * | ya que son los que estan relacionados con un curso
        * ---------------------------------------------------------*/
-      const courses = await models.Course.find({
+      let courses = await models.Course.find({
         $and: [{ title: new RegExp(req.query.search, "i") }],
       }).populate(["categorie", "user"]);
 
