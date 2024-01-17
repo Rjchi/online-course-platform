@@ -8,6 +8,7 @@ export default {
         _id: course.user._id,
         name: course.user.name,
         surname: course.user.surname,
+        profession: course.user.profession,
       },
       title: course.title,
       state: course.state,
