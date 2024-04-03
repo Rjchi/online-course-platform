@@ -4,9 +4,10 @@ import path from "path";
 import models from "../models";
 import resource from "../resource";
 
-const TOKEN_VIMEO = process.env.TOKEN_VIMEO;
-const CLIENT_ID_VIMEO = process.env.CLIENT_ID_VIMEO;
-const CLIENT_SECRET_VIMEO = process.env.CLIENT_SECRET_VIMEO;
+const TOKEN_VIMEO = "3ce863feebf2baf35c67169865ffac98";
+const CLIENT_ID_VIMEO = "82b33558cedd8bec9194a326969935cd72fff59a";
+const CLIENT_SECRET_VIMEO =
+  "UBPxXdWxL0aKikElcI/utLlJkpbdSQ9bJxntal5CvndiK5uAxGi5Hxrnv11l4nSJXYWgWVxvC/6WsSZuIza76fRZGmhKjb/RMPJK04bluiqIYgruAmuF9HG71ZX63Ebq";
 
 import { Vimeo } from "@vimeo/vimeo";
 
@@ -27,8 +28,12 @@ const UploadVideoVimeo = async (pathFile, video) => {
       (url) => {
         resolve("Video subido exitosamente " + url);
       },
+      (bytesUploaded, bytesTotal) => {
+        const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
+        console.log('Progreso de subida: ' + percentage + '%');
+      },
       (err) => {
-        reject("ERROR al subir el video", err);
+        reject("ERROR al subir el video" + err);
       }
     );
   });
@@ -235,7 +240,7 @@ export default {
   },
   upload_vimeo: async (req, res) => {
     try {
-      let PathFile = req.file.video.path;
+      let PathFile = req.files.video.path;
       let VideoMetaData = {
         name: "video de prueba",
         description: "Esto es una descripcion",
