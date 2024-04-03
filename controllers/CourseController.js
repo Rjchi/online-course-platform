@@ -165,6 +165,20 @@ export default {
       });
     }
   },
+  showCourse: async (req, res) => {
+    try {
+      let Course = await models.Course.findById({ _id: req.params["id"] });
+
+      return res.status(200).json({
+        course: resource.Course.apiResourceCourse(Course),
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        msg: "OCURRIO UN ERROR",
+      });
+    }
+  },
   getImage: async (req, res) => {
     try {
       const img = req.params["img"];

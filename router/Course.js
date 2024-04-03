@@ -13,6 +13,7 @@ const router = routerx();
 router
   .get("/imagen-course/:img", courseController.getImage)
   .get("/list", [auth.verifyAdmin], courseController.list)
+  .get("/show/:id", [auth.verifyAdmin], courseController.showCourse)
   .get("/config-all", [auth.verifyAdmin], courseController.config_all)
   .put("/update", [auth.verifyAdmin, path], courseController.update)
   .delete("/remove/:id", [auth.verifyAdmin], courseController.remove)
