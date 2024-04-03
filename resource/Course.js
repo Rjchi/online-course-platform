@@ -14,7 +14,7 @@ export default {
       state: course.state,
       level: course.level,
       idioma: course.idioma,
-      vimeo_id: course.vimeo_id,
+      vimeo_id: course.vimeo_id ? process.env.VIMEO_URL + course.vimeo_id : null,
       subtitle: course.subtitle,
       categorie: {
         // Formatiamos la categoria

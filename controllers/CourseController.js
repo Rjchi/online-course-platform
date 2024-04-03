@@ -4,6 +4,48 @@ import path from "path";
 import models from "../models";
 import resource from "../resource";
 
+const TOKEN_VIMEO = "3ce863feebf2baf35c67169865ffac98";
+const CLIENT_ID_VIMEO = "82b33558cedd8bec9194a326969935cd72fff59a";
+const CLIENT_SECRET_VIMEO =
+  "UBPxXdWxL0aKikElcI/utLlJkpbdSQ9bJxntal5CvndiK5uAxGi5Hxrnv11l4nSJXYWgWVxvC/6WsSZuIza76fRZGmhKjb/RMPJK04bluiqIYgruAmuF9HG71ZX63Ebq";
+
+import { Vimeo } from "@vimeo/vimeo";
+
+const CLIENT_VIMEO = new Vimeo(
+  CLIENT_ID_VIMEO,
+  CLIENT_SECRET_VIMEO,
+  TOKEN_VIMEO
+);
+
+const UploadVideoVimeo = async (pathFile, video) => {
+  /**----------------------------------------------------------
+   * | parametros: CUANDO SE SOLUCIONA, CUANDO HAY UN PROBLEMA
+   * ----------------------------------------------------------*/
+  return new Promise((resolve, reject) => {
+    CLIENT_VIMEO.upload(
+      pathFile,
+      video,
+      (url) => {
+        resolve({
+          message: 200,
+          value: url,
+        });
+      },
+      (bytesUploaded, bytesTotal) => {
+        const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
+        console.log("Progreso de subida: " + percentage + "%");
+      },
+      (err) => {
+        console.log(err);
+        reject({
+          message: 403,
+          message_text: "ERROR AL SUBIR EL VIDEO A VIMEO",
+        });
+      }
+    );
+  });
+};
+
 export default {
   register: async (req, res) => {
     try {
@@ -165,6 +207,20 @@ export default {
       });
     }
   },
+  showCourse: async (req, res) => {
+    try {
+      let Course = await models.Course.findById({ _id: req.params["id"] });
+
+      return res.status(200).json({
+        course: resource.Course.apiResourceCourse(Course),
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        msg: "OCURRIO UN ERROR",
+      });
+    }
+  },
   getImage: async (req, res) => {
     try {
       const img = req.params["img"];
@@ -182,6 +238,50 @@ export default {
           return res.status(200).sendFile(path.resolve(path_img));
         }
       });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        msg: "OCURRIO UN ERROR",
+      });
+    }
+  },
+  upload_vimeo: async (req, res) => {
+    try {
+      let PathFile = req.files.video.path;
+      let VideoMetaData = {
+        name: "video de prueba",
+        description: "Esto es una descripcion",
+        privacy: {
+          view: "anybody",
+        },
+      };
+      let vimeo_id_result = "";
+      const result = await UploadVideoVimeo(PathFile, VideoMetaData);
+
+      if (result.message === 403) {
+        return res.status(500).json({
+          msg: "OCURRIO UN ERROR",
+        });
+      } else {
+        /**---------------------------------------------------
+         * | ID que genera vimeo cuando subimos un video
+         * | fomato de la URL: /videos/930335455
+         * ---------------------------------------------------*/
+        let ARRAY_VALUES = result.value.split("/");
+        vimeo_id_result = ARRAY_VALUES[2];
+
+        /**-------------------------------------
+         * | Relacionamos el video con el curso
+         * -------------------------------------*/
+        let Course = await models.Course.findByIdAndUpdate(
+          { _id: req.body._id },
+          { vimeo_id: vimeo_id_result }
+        );
+
+        return res.status(200).json({
+          msg: "Prueba exitosa",
+        });
+      }
     } catch (error) {
       console.log(error);
       return res.status(500).json({
