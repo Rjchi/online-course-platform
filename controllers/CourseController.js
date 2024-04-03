@@ -26,14 +26,21 @@ const UploadVideoVimeo = async (pathFile, video) => {
       pathFile,
       video,
       (url) => {
-        resolve("Video subido exitosamente " + url);
+        resolve({
+          message: 200,
+          value: url,
+        });
       },
       (bytesUploaded, bytesTotal) => {
         const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
-        console.log('Progreso de subida: ' + percentage + '%');
+        console.log("Progreso de subida: " + percentage + "%");
       },
       (err) => {
-        reject("ERROR al subir el video" + err);
+        console.log(err);
+        reject({
+          message: 403,
+          message_text: "ERROR AL SUBIR EL VIDEO A VIMEO",
+        });
       }
     );
   });
@@ -248,13 +255,33 @@ export default {
           view: "anybody",
         },
       };
+      let vimeo_id_result = "";
       const result = await UploadVideoVimeo(PathFile, VideoMetaData);
 
-      console.log(result);
+      if (result.message === 403) {
+        return res.status(500).json({
+          msg: "OCURRIO UN ERROR",
+        });
+      } else {
+        /**---------------------------------------------------
+         * | ID que genera vimeo cuando subimos un video
+         * | fomato de la URL: /videos/930335455
+         * ---------------------------------------------------*/
+        let ARRAY_VALUES = result.value.split("/");
+        vimeo_id_result = ARRAY_VALUES[2];
 
-      res.status(200).json({
-        msg: "Prueba exitosa",
-      });
+        /**-------------------------------------
+         * | Relacionamos el video con el curso
+         * -------------------------------------*/
+        let Course = await models.Course.findByIdAndUpdate(
+          { _id: req.body._id },
+          { vimeo_id: vimeo_id_result }
+        );
+
+        return res.status(200).json({
+          msg: "Prueba exitosa",
+        });
+      }
     } catch (error) {
       console.log(error);
       return res.status(500).json({
