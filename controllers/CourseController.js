@@ -4,6 +4,36 @@ import path from "path";
 import models from "../models";
 import resource from "../resource";
 
+const TOKEN_VIMEO = process.env.TOKEN_VIMEO;
+const CLIENT_ID_VIMEO = process.env.CLIENT_ID_VIMEO;
+const CLIENT_SECRET_VIMEO = process.env.CLIENT_SECRET_VIMEO;
+
+import { Vimeo } from "@vimeo/vimeo";
+
+const CLIENT_VIMEO = new Vimeo(
+  CLIENT_ID_VIMEO,
+  CLIENT_SECRET_VIMEO,
+  TOKEN_VIMEO
+);
+
+const UploadVideoVimeo = async (pathFile, video) => {
+  /**----------------------------------------------------------
+   * | parametros: CUANDO SE SOLUCIONA, CUANDO HAY UN PROBLEMA
+   * ----------------------------------------------------------*/
+  return new Promise((resolve, reject) => {
+    CLIENT_VIMEO.upload(
+      pathFile,
+      video,
+      (url) => {
+        resolve("Video subido exitosamente " + url);
+      },
+      (err) => {
+        reject("ERROR al subir el video", err);
+      }
+    );
+  });
+};
+
 export default {
   register: async (req, res) => {
     try {
@@ -195,6 +225,30 @@ export default {
 
           return res.status(200).sendFile(path.resolve(path_img));
         }
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        msg: "OCURRIO UN ERROR",
+      });
+    }
+  },
+  upload_vimeo: async (req, res) => {
+    try {
+      let PathFile = req.file.video.path;
+      let VideoMetaData = {
+        name: "video de prueba",
+        description: "Esto es una descripcion",
+        privacy: {
+          view: "anybody",
+        },
+      };
+      const result = await UploadVideoVimeo(PathFile, VideoMetaData);
+
+      console.log(result);
+
+      res.status(200).json({
+        msg: "Prueba exitosa",
       });
     } catch (error) {
       console.log(error);
