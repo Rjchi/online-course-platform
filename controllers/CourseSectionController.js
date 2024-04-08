@@ -64,7 +64,7 @@ export default {
   },
   list: async (req, res) => {
     try {
-      let CoursesSections = await models.Categorie.find().sort({"createdAt": -1});
+      let CoursesSections = await models.CourseSection.find().sort({"createdAt": -1});
 
       return res.status(200).json({
         courses_sections: CoursesSections,
