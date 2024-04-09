@@ -1,5 +1,4 @@
 import models from "../models";
-import resource from "../resource";
 
 export default {
   register: async (req, res) => {
