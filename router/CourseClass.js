@@ -1,4 +1,5 @@
 import routerx from "express-promise-router";
+import multiparty from "connect-multiparty";
 
 import auth from "../service/auth";
 import courseClassController from "../controllers/CourseClassController";
