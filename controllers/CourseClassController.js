@@ -1,3 +1,5 @@
+import getVideoDurationInSeconds from "get-video-duration";
+
 import models from "../models";
 
 const TOKEN_VIMEO = "3ce863feebf2baf35c67169865ffac98";
@@ -38,6 +40,22 @@ const UploadVideoVimeo = async (pathFile, video) => {
     );
   });
 };
+
+function formatarDuracion(durationInSeconds) {
+  const hours = Math.floor(durationInSeconds / 3600);
+  const minutes = Math.floor((durationInSeconds % 3600) / 60);
+  const seconds = Math.floor(durationInSeconds % 60);
+
+  /**------------------------------------------------
+   * | Le damos este formato 03:04:23 (00:00:00)
+   * ------------------------------------------------*/
+
+  const formattedHours = String(hours).padStart(2, "0");
+  const formattedMinutes = String(minutes).padStart(2, "0");
+  const formattedSeconds = String(seconds).padStart(2, "0");
+
+  return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+}
 
 export default {
   register: async (req, res) => {
@@ -133,33 +151,40 @@ export default {
   upload_vimeo: async (req, res) => {
     try {
       let PathFile = req.files.video.path;
-      let VideoMetaData = {
-        name: "video de prueba",
-        description: "Esto es una descripcion",
-        privacy: {
-          view: "anybody",
-        },
-      };
-      let vimeo_id_result = "";
-      const result = await UploadVideoVimeo(PathFile, VideoMetaData);
 
-      if (result.message === 403) {
-        return res.status(500).json({
-          msg: "OCURRIO UN ERROR",
-        });
-      } else {
-        let ARRAY_VALUES = result.value.split("/");
-        vimeo_id_result = ARRAY_VALUES[2];
+      getVideoDurationInSeconds(PathFile).then(async (duration) => {
+        console.log(duration);
+        console.log(formatarDuracion(duration));
 
-        let Course = await models.Course.findByIdAndUpdate(
-          { _id: req.body._id },
-          { vimeo_id: vimeo_id_result }
-        );
+        let DURATION = formatarDuracion(duration);
+        let VideoMetaData = {
+          name: "video de la clase",
+          description: "El video de la clase seleccionada",
+          privacy: {
+            view: "anybody",
+          },
+        };
+        let vimeo_id_result = "";
+        const result = await UploadVideoVimeo(PathFile, VideoMetaData);
 
-        return res.status(200).json({
-          msg: "Prueba exitosa",
-        });
-      }
+        if (result.message === 403) {
+          return res.status(500).json({
+            msg: "OCURRIO UN ERROR",
+          });
+        } else {
+          let ARRAY_VALUES = result.value.split("/");
+          vimeo_id_result = ARRAY_VALUES[2];
+
+          await models.CourseClass.findByIdAndUpdate(
+            { _id: req.body._id },
+            { vimeo_id: vimeo_id_result, time: DURATION }
+          );
+
+          return res.status(200).json({
+            msg: "Prueba exitosa",
+          });
+        }
+      });
     } catch (error) {
       console.log(error);
       return res.status(500).json({
