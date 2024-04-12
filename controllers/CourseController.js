@@ -280,6 +280,7 @@ export default {
 
         return res.status(200).json({
           msg: "Prueba exitosa",
+          vimeo_id: process.env.VIMEO_URL + vimeo_id_result,
         });
       }
     } catch (error) {

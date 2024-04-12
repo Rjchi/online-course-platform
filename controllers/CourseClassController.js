@@ -124,6 +124,14 @@ export default {
         createdAt: -1,
       });
 
+      CoursesClass = CoursesClass.map((clase) => {
+        clase.vimeo_id = clase.vimeo_id
+          ? process.env.VIMEO_URL + clase.vimeo_id
+          : null;
+
+        return clase;
+      });
+
       return res.status(200).json({
         course_class: CoursesClass,
       });
@@ -182,6 +190,7 @@ export default {
 
           return res.status(200).json({
             msg: "Prueba exitosa",
+            vimeo_id: process.env.VIMEO_URL + vimeo_id_result,
           });
         }
       });
