@@ -215,7 +215,7 @@ export default {
       return res.status(200).json({
         file: {
           _id: ClaseFile._id,
-          file: ClaseFile.file,
+          file: process.env.URL_BACKEND + "api/course-class/file-class/" + ClaseFile.file,
           file_name: ClaseFile.file_name,
           size: ClaseFile.size,
           clase: ClaseFile.clase,
