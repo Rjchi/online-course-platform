@@ -39,6 +39,6 @@ router
     [auth.verifyAdmin],
     courseClassController.delete_file
   )
-  .get("/file-image/:file", [auth.verifyAdmin], courseClassController.get_file_class)
+  .get("/file-class/:file", [auth.verifyAdmin], courseClassController.get_file_class)
 
 export default router;
