@@ -3,6 +3,7 @@ import Course from "./Course";
 import Categorie from "./Categorie";
 import CourseClass from "./CourseClass";
 import CourseSection from "./CourseSection";
+import CourseClassFile from "./CourseClassFile";
 
 export default {
   User,
@@ -10,4 +11,5 @@ export default {
   Categorie,
   CourseClass,
   CourseSection,
+  CourseClassFile,
 };
