@@ -201,4 +201,73 @@ export default {
       });
     }
   },
+  register_file: async (req, res) => {
+    try {
+      if (req.files && req.files.recurso) {
+        const img_path = req.files.recurso.path;
+        const name = img_path.split("\\");
+        const recurso_name = name[2];
+
+        req.body.file = recurso_name;
+      }
+      const ClaseFile = await models.CourseClassFile.create(req.body);
+
+      return res.status(200).json({
+        file: {
+          _id: ClaseFile._id,
+          file: ClaseFile.file,
+          file_name: ClaseFile.file_name,
+          size: ClaseFile.size,
+          clase: ClaseFile.clase,
+        },
+        message: "SE HA REGISTRADO EL RECURSO DESCARGABLE",
+      });
+    } catch (error) {
+      console.log(error.messge);
+      return res.status(500).send({
+        msg: "OCURRIO UN PROBLEMA",
+      });
+    }
+  },
+  delete_file: async (req, res) => {
+    try {
+      let file_id = req.params.id;
+      await models.CourseClassFile.findByIdAndDelete({
+        _id: file_id,
+      });
+
+      return res.status(200).json({
+        message: "SE HA ELIMINADO EL RECURSO DESCARGABLE",
+      });
+    } catch (error) {
+      console.log(error.messge);
+      return res.status(500).send({
+        msg: "OCURRIO UN PROBLEMA",
+      });
+    }
+  },
+  get_file_class: async (req, res) => {
+    try {
+      const fileT = req.params["file"];
+
+      if (!fileT) return res.status(500).json({ msg: "OCURRIO UN PROBLEMA" });
+
+      fs.stat("./uploads/course/files/" + fileT, function (err) {
+        if (!err) {
+          let path_img = "./uploads/course/files/" + fileT;
+
+          return res.status(200).sendFile(path.resolve(path_img));
+        } else {
+          let path_img = "./uploads/default.jpg";
+
+          return res.status(200).sendFile(path.resolve(path_img));
+        }
+      });
+    } catch (error) {
+      console.log(error.messge);
+      return res.status(500).send({
+        msg: "OCURRIO UN PROBLEMA",
+      });
+    }
+  },
 };
