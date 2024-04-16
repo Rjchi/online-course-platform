@@ -43,7 +43,7 @@ const UploadVideoVimeo = async (pathFile, video) => {
   });
 };
 
-function formatarDuracion(durationInSeconds) {
+function formatiarDuracion(durationInSeconds) {
   const hours = Math.floor(durationInSeconds / 3600);
   const minutes = Math.floor((durationInSeconds % 3600) / 60);
   const seconds = Math.floor(durationInSeconds % 60);
@@ -57,6 +57,22 @@ function formatarDuracion(durationInSeconds) {
   const formattedSeconds = String(seconds).padStart(2, "0");
 
   return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+}
+
+function sumarTiempos(...tiempos) {
+  // Convierte cada tiempo en formato "hh:mm:ss" a segundos y suma todos los segundos.
+  const totalSegundos = tiempos.reduce((total, tiempo) => {
+    const [horas, minutos, segundos] = tiempo.split(":").map(Number);
+    return total + horas * 3600 + minutos * 60 + segundos;
+  }, 0);
+
+  // Convierte los segundos totales a formato "hh:mm:ss".
+  const horas = Math.floor(totalSegundos / 3600);
+  const minutos = Math.floor((totalSegundos % 3600) / 60);
+  const segundos = totalSegundos % 60;
+
+  // Retorna el resultado formateado.
+  return `${horas} horas ${minutos} minutos ${segundos} segundos`;
 }
 
 export default {
@@ -152,6 +168,11 @@ export default {
         CourseClass.vimeo_id = CourseClass.vimeo_id
           ? process.env.VIMEO_URL + CourseClass.vimeo_id
           : null;
+
+        let time_class = [CourseClass.time];
+        const tiempoTotal = CourseClass.time ? sumarTiempos(...time_class) : 0;
+
+        CourseClass.time_parse = tiempoTotal;
         NewCoursesClass.unshift(CourseClass);
       }
 
@@ -185,9 +206,9 @@ export default {
 
       getVideoDurationInSeconds(PathFile).then(async (duration) => {
         console.log(duration);
-        console.log(formatarDuracion(duration));
+        console.log(formatiarDuracion(duration));
 
-        let DURATION = formatarDuracion(duration);
+        let DURATION = formatiarDuracion(duration);
         let VideoMetaData = {
           name: "video de la clase",
           description: "El video de la clase seleccionada",
