@@ -138,7 +138,9 @@ export default {
   },
   list: async (req, res) => {
     try {
-      let CoursesClass = await models.CourseClass.find().sort({
+      let sectionId = req.query.section_id;
+
+      let CoursesClass = await models.CourseClass.find({ section: sectionId }).sort({
         createdAt: -1,
       });
 
