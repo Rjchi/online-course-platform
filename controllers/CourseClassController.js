@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import getVideoDurationInSeconds from "get-video-duration";
 
 import models from "../models";
@@ -124,16 +126,37 @@ export default {
         createdAt: -1,
       });
 
-      CoursesClass = CoursesClass.map((clase) => {
-        clase.vimeo_id = clase.vimeo_id
-          ? process.env.VIMEO_URL + clase.vimeo_id
-          : null;
+      let NewCoursesClass = [];
 
-        return clase;
-      });
+      for (let CourseClass of CoursesClass) {
+        CourseClass = CourseClass.toObject();
+        let ClaseFiles = await models.CourseClassFile.find({
+          clase: CourseClass._id,
+        });
+
+        CourseClass.files = [];
+
+        for (const ClaseFile of ClaseFiles) {
+          CourseClass.files.unshift({
+            _id: ClaseFile._id,
+            file:
+              process.env.URL_BACKEND +
+              "/api/course-class/file-class/" +
+              ClaseFile.file,
+            file_name: ClaseFile.file_name,
+            size: ClaseFile.size,
+            clase: ClaseFile.clase,
+          });
+        }
+
+        CourseClass.vimeo_id = CourseClass.vimeo_id
+          ? process.env.VIMEO_URL + CourseClass.vimeo_id
+          : null;
+        NewCoursesClass.unshift(CourseClass);
+      }
 
       return res.status(200).json({
-        course_class: CoursesClass,
+        course_class: NewCoursesClass,
       });
     } catch (error) {
       console.log(error);
@@ -206,7 +229,7 @@ export default {
       if (req.files && req.files.recurso) {
         const img_path = req.files.recurso.path;
         const name = img_path.split("\\");
-        const recurso_name = name[2];
+        const recurso_name = name[3];
 
         req.body.file = recurso_name;
       }
@@ -215,7 +238,10 @@ export default {
       return res.status(200).json({
         file: {
           _id: ClaseFile._id,
-          file: process.env.URL_BACKEND + "/api/course-class/file-class/" + ClaseFile.file,
+          file:
+            process.env.URL_BACKEND +
+            "/api/course-class/file-class/" +
+            ClaseFile.file,
           file_name: ClaseFile.file_name,
           size: ClaseFile.size,
           clase: ClaseFile.clase,
