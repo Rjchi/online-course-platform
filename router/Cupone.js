@@ -9,7 +9,7 @@ router
   .get("/list", [auth.verifyAdmin], cuponeController.list)
   .put("/update", [auth.verifyAdmin], cuponeController.update)
   .post("/register", [auth.verifyAdmin], cuponeController.register)
-  .get("/show/:id", [auth.verifyAdmin], cuponeController.showCourse)
+  .get("/show/:id", [auth.verifyAdmin], cuponeController.showCupone)
   .delete("/remove/:id", [auth.verifyAdmin], cuponeController.remove)
   .get("/config-all", [auth.verifyAdmin], cuponeController.config_all);
 
