@@ -177,13 +177,25 @@ export default {
       /**---------------------------------------------------------------------
        * | Si el curso esta relacionado con una venta no se puede eliminar
        * ---------------------------------------------------------------------*/
+
       await models.Course.findByIdAndDelete({
         _id: req.params["id"],
       });
 
-      return res.status(200).json({
-        msg: "EL CURSO SE ELIMINO CORRECTAMENTE",
-      });
+      // await models.SaleDetail.find({ course:Course._id });
+      let CourseSale = null;
+
+      if (CourseSale) {
+        return res.status(200).json({
+          msg: "EL CURSO NO SE PUEDE ELIMINAR, PORQUE YA TIENE VENTAS",
+          code: 403,
+        });
+      } else {
+        return res.status(200).json({
+          msg: "EL CURSO SE ELIMINO CORRECTAMENTE",
+          code: 200,
+        });
+      }
     } catch (error) {
       console.log(error);
       return res.status(500).json({
