@@ -131,12 +131,31 @@ export default {
   },
   list: async (req, res) => {
     try {
+      let state = req.query.state;
+      let search = req.query.search;
+      let categorie = req.query.categorie;
+      console.log("Consulta: ", req.query);
+      let filter = [{ title: new RegExp("", "i") }];
+
+      if (search) {
+        filter = [];
+        filter.push({ title: new RegExp(search, "i") });
+      }
+
+      if (state) {
+        filter.push({ state: state });
+      }
+
+      if (categorie) {
+        filter.push({ categorie: categorie });
+      }
+
       /**---------------------------------------------------------
        * | Con populate podemos traer la categoria y el usuario
        * | ya que son los que estan relacionados con un curso
        * ---------------------------------------------------------*/
       let courses = await models.Course.find({
-        $and: [{ title: new RegExp(req.query.search, "i") }],
+        $and: filter,
       }).populate(["categorie", "user"]);
 
       courses = courses.map((course) => {
