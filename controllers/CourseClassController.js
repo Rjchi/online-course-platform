@@ -1,3 +1,7 @@
+import fs from "fs";
+import path from "path";
+import getVideoDurationInSeconds from "get-video-duration";
+
 import models from "../models";
 
 const TOKEN_VIMEO = "3ce863feebf2baf35c67169865ffac98";
@@ -38,6 +42,38 @@ const UploadVideoVimeo = async (pathFile, video) => {
     );
   });
 };
+
+function formatiarDuracion(durationInSeconds) {
+  const hours = Math.floor(durationInSeconds / 3600);
+  const minutes = Math.floor((durationInSeconds % 3600) / 60);
+  const seconds = Math.floor(durationInSeconds % 60);
+
+  /**------------------------------------------------
+   * | Le damos este formato 03:04:23 (00:00:00)
+   * ------------------------------------------------*/
+
+  const formattedHours = String(hours).padStart(2, "0");
+  const formattedMinutes = String(minutes).padStart(2, "0");
+  const formattedSeconds = String(seconds).padStart(2, "0");
+
+  return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+}
+
+function sumarTiempos(...tiempos) {
+  // Convierte cada tiempo en formato "hh:mm:ss" a segundos y suma todos los segundos.
+  const totalSegundos = tiempos.reduce((total, tiempo) => {
+    const [horas, minutos, segundos] = tiempo.split(":").map(Number);
+    return total + horas * 3600 + minutos * 60 + segundos;
+  }, 0);
+
+  // Convierte los segundos totales a formato "hh:mm:ss".
+  const horas = Math.floor(totalSegundos / 3600);
+  const minutos = Math.floor((totalSegundos % 3600) / 60);
+  const segundos = totalSegundos % 60;
+
+  // Retorna el resultado formateado.
+  return `${horas} horas ${minutos} minutos ${segundos} segundos`;
+}
 
 export default {
   register: async (req, res) => {
@@ -102,12 +138,48 @@ export default {
   },
   list: async (req, res) => {
     try {
-      let CoursesClass = await models.CourseClass.find().sort({
+      let sectionId = req.query.section_id;
+
+      let CoursesClass = await models.CourseClass.find({ section: sectionId }).sort({
         createdAt: -1,
       });
 
+      let NewCoursesClass = [];
+
+      for (let CourseClass of CoursesClass) {
+        CourseClass = CourseClass.toObject();
+        let ClaseFiles = await models.CourseClassFile.find({
+          clase: CourseClass._id,
+        });
+
+        CourseClass.files = [];
+
+        for (const ClaseFile of ClaseFiles) {
+          CourseClass.files.unshift({
+            _id: ClaseFile._id,
+            file:
+              process.env.URL_BACKEND +
+              "/api/course-class/file-class/" +
+              ClaseFile.file,
+            file_name: ClaseFile.file_name,
+            size: ClaseFile.size,
+            clase: ClaseFile.clase,
+          });
+        }
+
+        CourseClass.vimeo_id = CourseClass.vimeo_id
+          ? process.env.VIMEO_URL + CourseClass.vimeo_id
+          : null;
+
+        let time_class = [CourseClass.time];
+        const tiempoTotal = CourseClass.time ? sumarTiempos(...time_class) : 0;
+
+        CourseClass.time_parse = tiempoTotal;
+        NewCoursesClass.unshift(CourseClass);
+      }
+
       return res.status(200).json({
-        course_class: CoursesClass,
+        course_class: NewCoursesClass,
       });
     } catch (error) {
       console.log(error);
@@ -133,37 +205,117 @@ export default {
   upload_vimeo: async (req, res) => {
     try {
       let PathFile = req.files.video.path;
-      let VideoMetaData = {
-        name: "video de prueba",
-        description: "Esto es una descripcion",
-        privacy: {
-          view: "anybody",
-        },
-      };
-      let vimeo_id_result = "";
-      const result = await UploadVideoVimeo(PathFile, VideoMetaData);
 
-      if (result.message === 403) {
-        return res.status(500).json({
-          msg: "OCURRIO UN ERROR",
-        });
-      } else {
-        let ARRAY_VALUES = result.value.split("/");
-        vimeo_id_result = ARRAY_VALUES[2];
+      getVideoDurationInSeconds(PathFile).then(async (duration) => {
+        console.log(duration);
+        console.log(formatiarDuracion(duration));
 
-        let Course = await models.Course.findByIdAndUpdate(
-          { _id: req.body._id },
-          { vimeo_id: vimeo_id_result }
-        );
+        let DURATION = formatiarDuracion(duration);
+        let VideoMetaData = {
+          name: "video de la clase",
+          description: "El video de la clase seleccionada",
+          privacy: {
+            view: "anybody",
+          },
+        };
+        let vimeo_id_result = "";
+        const result = await UploadVideoVimeo(PathFile, VideoMetaData);
 
-        return res.status(200).json({
-          msg: "Prueba exitosa",
-        });
-      }
+        if (result.message === 403) {
+          return res.status(500).json({
+            msg: "OCURRIO UN ERROR",
+          });
+        } else {
+          let ARRAY_VALUES = result.value.split("/");
+          vimeo_id_result = ARRAY_VALUES[2];
+
+          await models.CourseClass.findByIdAndUpdate(
+            { _id: req.body._id },
+            { vimeo_id: vimeo_id_result, time: DURATION }
+          );
+
+          return res.status(200).json({
+            msg: "Prueba exitosa",
+            vimeo_id: process.env.VIMEO_URL + vimeo_id_result,
+          });
+        }
+      });
     } catch (error) {
       console.log(error);
       return res.status(500).json({
         msg: "OCURRIO UN ERROR",
+      });
+    }
+  },
+  register_file: async (req, res) => {
+    try {
+      if (req.files && req.files.recurso) {
+        const img_path = req.files.recurso.path;
+        const name = img_path.split("\\");
+        const recurso_name = name[3];
+
+        req.body.file = recurso_name;
+      }
+      const ClaseFile = await models.CourseClassFile.create(req.body);
+
+      return res.status(200).json({
+        file: {
+          _id: ClaseFile._id,
+          file:
+            process.env.URL_BACKEND +
+            "/api/course-class/file-class/" +
+            ClaseFile.file,
+          file_name: ClaseFile.file_name,
+          size: ClaseFile.size,
+          clase: ClaseFile.clase,
+        },
+        message: "SE HA REGISTRADO EL RECURSO DESCARGABLE",
+      });
+    } catch (error) {
+      console.log(error.messge);
+      return res.status(500).send({
+        msg: "OCURRIO UN PROBLEMA",
+      });
+    }
+  },
+  delete_file: async (req, res) => {
+    try {
+      let file_id = req.params.id;
+      await models.CourseClassFile.findByIdAndDelete({
+        _id: file_id,
+      });
+
+      return res.status(200).json({
+        message: "SE HA ELIMINADO EL RECURSO DESCARGABLE",
+      });
+    } catch (error) {
+      console.log(error.messge);
+      return res.status(500).send({
+        msg: "OCURRIO UN PROBLEMA",
+      });
+    }
+  },
+  get_file_class: async (req, res) => {
+    try {
+      const fileT = req.params["file"];
+
+      if (!fileT) return res.status(500).json({ msg: "OCURRIO UN PROBLEMA" });
+
+      fs.stat("./uploads/course/files/" + fileT, function (err) {
+        if (!err) {
+          let path_img = "./uploads/course/files/" + fileT;
+
+          return res.status(200).sendFile(path.resolve(path_img));
+        } else {
+          let path_img = "./uploads/default.jpg";
+
+          return res.status(200).sendFile(path.resolve(path_img));
+        }
+      });
+    } catch (error) {
+      console.log(error.messge);
+      return res.status(500).send({
+        msg: "OCURRIO UN PROBLEMA",
       });
     }
   },

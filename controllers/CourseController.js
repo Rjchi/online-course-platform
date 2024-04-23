@@ -131,12 +131,31 @@ export default {
   },
   list: async (req, res) => {
     try {
+      let state = req.query.state;
+      let search = req.query.search;
+      let categorie = req.query.categorie;
+      console.log("Consulta: ", req.query);
+      let filter = [{ title: new RegExp("", "i") }];
+
+      if (search) {
+        filter = [];
+        filter.push({ title: new RegExp(search, "i") });
+      }
+
+      if (state) {
+        filter.push({ state: state });
+      }
+
+      if (categorie) {
+        filter.push({ categorie: categorie });
+      }
+
       /**---------------------------------------------------------
        * | Con populate podemos traer la categoria y el usuario
        * | ya que son los que estan relacionados con un curso
        * ---------------------------------------------------------*/
       let courses = await models.Course.find({
-        $and: [{ title: new RegExp(req.query.search, "i") }],
+        $and: filter,
       }).populate(["categorie", "user"]);
 
       courses = courses.map((course) => {
@@ -158,13 +177,25 @@ export default {
       /**---------------------------------------------------------------------
        * | Si el curso esta relacionado con una venta no se puede eliminar
        * ---------------------------------------------------------------------*/
+
       await models.Course.findByIdAndDelete({
         _id: req.params["id"],
       });
 
-      return res.status(200).json({
-        msg: "EL CURSO SE ELIMINO CORRECTAMENTE",
-      });
+      // await models.SaleDetail.find({ course:Course._id });
+      let CourseSale = null;
+
+      if (CourseSale) {
+        return res.status(200).json({
+          msg: "EL CURSO NO SE PUEDE ELIMINAR, PORQUE YA TIENE VENTAS",
+          code: 403,
+        });
+      } else {
+        return res.status(200).json({
+          msg: "EL CURSO SE ELIMINO CORRECTAMENTE",
+          code: 200,
+        });
+      }
     } catch (error) {
       console.log(error);
       return res.status(500).json({
@@ -280,6 +311,7 @@ export default {
 
         return res.status(200).json({
           msg: "Prueba exitosa",
+          vimeo_id: process.env.VIMEO_URL + vimeo_id_result,
         });
       }
     } catch (error) {
