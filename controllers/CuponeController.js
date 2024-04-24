@@ -92,6 +92,7 @@ export default {
         return {
           _id: course._id,
           title: course.title,
+          price_usd: course.price_usd,
           categorie: {
             _id: course.categorie._id,
             title: course.categorie.title,
