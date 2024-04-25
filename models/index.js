@@ -1,6 +1,7 @@
 import User from "./User";
 import Cupone from "./Cupone";
 import Course from "./Course";
+import Discount from "./Discount";
 import Categorie from "./Categorie";
 import CourseClass from "./CourseClass";
 import CourseSection from "./CourseSection";
@@ -10,6 +11,7 @@ export default {
   User,
   Course,
   Cupone,
+  Discount,
   Categorie,
   CourseClass,
   CourseSection,
