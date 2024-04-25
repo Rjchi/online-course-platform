@@ -55,7 +55,7 @@ export default {
       let search = req.query.search;
 
       let cupones = await models.Cupone.find({
-        $or: { code: new RegExp(search, "i") },
+        $or: [{ code: new RegExp(search, "i") }],
       }).sort({ createAt: -1 });
 
       return res.status(200).json({ cupones });
