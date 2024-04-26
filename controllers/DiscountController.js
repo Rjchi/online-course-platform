@@ -35,6 +35,21 @@ export default {
         });
       }
 
+      /**-------------------------------------------------
+       * | $gte este operador significa mayor o igual a
+       * | y $lte significa menor o igual (operadores
+       * | de MongoDB)
+       -------------------------------------------------*/
+      filterA.push({
+        type_campaing: data.type_campaing,
+        start_date_num: { $gte: data.start_date_num, $lte: data.end_date_num },
+      });
+
+      filterB.push({
+        type_campaing: data.type_campaing,
+        end_date_num: { $gte: data.start_date_num, $lte: data.end_date_num },
+      });
+
       let exist_start_date = await models.Discount.findOne({
         $and: filterA,
       });
@@ -51,8 +66,12 @@ export default {
         });
       }
 
-       
-    //   return res.status(200).json({})
+      await models.Discount.create(data);
+
+      return res.status(200).json({
+        message: 200,
+        message_text: "EL DESCUENTO SE REGISTRO CORRECTAMENTE",
+      });
     } catch (error) {
       console.log(error);
       return res.status(500).json({
