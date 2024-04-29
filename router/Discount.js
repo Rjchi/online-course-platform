@@ -9,7 +9,7 @@ router
   .get("/list", [auth.verifyAdmin], discountController.list)
   .put("/update", [auth.verifyAdmin], discountController.update)
   .post("/register", [auth.verifyAdmin], discountController.register)
-  .get("/show/:id", [auth.verifyAdmin], discountController.showCupone)
+  .get("/show/:id", [auth.verifyAdmin], discountController.showDiscount)
   .delete("/remove/:id", [auth.verifyAdmin], discountController.remove)
   .get("/config-all", [auth.verifyAdmin], discountController.config_all);
 
