@@ -58,12 +58,14 @@ export default {
         $and: filterB,
       });
 
-      if (exist_start_date.length > 0 || exist_end_date.length > 0) {
-        return res.status(200).json({
-          message: 403,
-          message_text:
-            "EL DESCUENTO NO SE PUEDE REGISTRAR PORQUE HAY DUPLICIDAD",
-        });
+      if (exist_start_date && exist_end_date) {
+        if (exist_start_date.length > 0 || exist_end_date.length > 0) {
+          return res.status(200).json({
+            message: 403,
+            message_text:
+              "EL DESCUENTO NO SE PUEDE REGISTRAR PORQUE HAY DUPLICIDAD",
+          });
+        }
       }
 
       await models.Discount.create(data);
@@ -161,11 +163,11 @@ export default {
     try {
       let discount_id = req.params.id;
 
-      await models.Discount.findByIdAndDelete({ _id: discount_id })
+      await models.Discount.findByIdAndDelete({ _id: discount_id });
 
       return res.status(200).json({
-        message: "EL DESCUENTO SE HA ELIMINADO CORRECTAMENTE"
-      })
+        message: "EL DESCUENTO SE HA ELIMINADO CORRECTAMENTE",
+      });
     } catch (error) {
       console.log(error);
       return res.status(500).json({
