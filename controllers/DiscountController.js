@@ -4,6 +4,7 @@ export default {
   register: async (req, res) => {
     try {
       let data = req.body;
+      console.log(data);
 
       let filterA = []; // Para encontrar coincidencia a nivel de fecha de inicio
       let filterB = []; // Para encontrar coincidencia a nivel de fecha de fin
@@ -16,22 +17,22 @@ export default {
           /**-----------------------------------------------------------------------------------------------
            * | Con elemtMatch ingresamos al objeto y con el $in lo utilizamos para encontrar coincidencias
            * -----------------------------------------------------------------------------------------------*/
-          courses: { $elemMatch: { _id: { $in: data.courses_s } } }, // o { $in: data.courses_s }
+          courses: { $elemMatch: { $in: data.courses_s } }, // o { _id: { $in: data.categories_s } }
         });
 
         filterB.push({
-          courses: { $elemMatch: { _id: { $in: data.courses_s } } },
+          courses: { $elemMatch: { $in: data.courses_s } },
         });
       } else {
         /**---------------------------------------------------------------------------------------
          * | Para categorias: Filtrar por categorias existentes en otras campañas de descuento
          * ---------------------------------------------------------------------------------------*/
         filterA.push({
-          categories: { $elemMatch: { _id: { $in: data.categories_s } } },
+          categories: { $elemMatch: { $in: data.categories_s } },
         });
 
         filterB.push({
-          categories: { $elemMatch: { _id: { $in: data.categories_s } } },
+          categories: { $elemMatch: { $in: data.categories_s } },
         });
       }
 
@@ -50,13 +51,19 @@ export default {
         end_date_num: { $gte: data.start_date_num, $lte: data.end_date_num },
       });
 
-      let exist_start_date = await models.Discount.findOne({
+      let exist_start_date = await models.Discount.find({
         $and: filterA,
       });
 
-      let exist_end_date = await models.Discount.findOne({
+      let exist_end_date = await models.Discount.find({
         $and: filterB,
       });
+
+      console.log(exist_end_date);
+      console.log(exist_start_date);
+      console.log("______________________________");
+      console.log(filterA);
+      console.log(filterB);
 
       if (exist_start_date && exist_end_date) {
         if (exist_start_date.length > 0 || exist_end_date.length > 0) {
