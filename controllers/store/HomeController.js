@@ -66,7 +66,11 @@ export default {
     try {
       let categories = await models.Categorie.find({ state: 1 });
 
-      categories = categories.map((categorie) => {
+      categories = categories.map(async (categorie) => {
+        let count_courses = await models.Course.count({
+          categorie: categorie._id,
+        });
+
         return apiResource.Categorie.apiResourceCategorie(categorie);
       });
 
