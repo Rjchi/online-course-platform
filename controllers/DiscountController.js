@@ -91,25 +91,26 @@ export default {
   update: async (req, res) => {
     try {
       let data = req.body;
+      console.log(data);
 
       let filterA = [];
       let filterB = [];
 
       if (data.type_segment === 1) {
         filterA.push({
-          courses: { $elemMatch: { _id: { $in: data.courses_s } } },
+          courses: { $elemMatch: { $in: data.courses_s } },
         });
 
         filterB.push({
-          courses: { $elemMatch: { _id: { $in: data.courses_s } } },
+          courses: { $elemMatch: { $in: data.courses_s } },
         });
       } else {
         filterA.push({
-          categories: { $elemMatch: { _id: { $in: data.categories_s } } },
+          categories: { $elemMatch: { $in: data.categories_s } },
         });
 
         filterB.push({
-          categories: { $elemMatch: { _id: { $in: data.categories_s } } },
+          categories: { $elemMatch: { $in: data.categories_s } },
         });
       }
 
@@ -133,12 +134,14 @@ export default {
         $and: filterB,
       });
 
-      if (exist_start_date.length > 0 || exist_end_date.length > 0) {
-        return res.status(200).json({
-          message: 403,
-          message_text:
-            "EL DESCUENTO NO SE PUEDE REGISTRAR PORQUE HAY DUPLICIDAD",
-        });
+      if (exist_start_date && exist_end_date) {
+        if (exist_start_date.length > 0 || exist_end_date.length > 0) {
+          return res.status(200).json({
+            message: 403,
+            message_text:
+              "EL DESCUENTO NO SE PUEDE REGISTRAR PORQUE HAY DUPLICIDAD",
+          });
+        }
       }
 
       await models.Discount.findByIdAndUpdate({ _id: data._id }, data);
