@@ -125,9 +125,35 @@ export default {
         COURSES_TOPS.push(apiResource.Course.apiResourceCourse(course_top));
       }
 
-      return res
-        .status(200)
-        .json({ categories: CATEGORIES_LIST, courses_top: COURSES_TOPS });
+      let categories_sections = await models.Categorie.aggregate([
+        { $match: { state: 1 } },
+        {
+          $sample: { size: 5 },
+        },
+      ]);
+
+      let CATEGORIES_SECTIONS = [];
+
+      for (const categorie of categories_sections) {
+        let courses = await models.Course.find({
+          categorie: categorie._id,
+        }).populate(["categorie", "user"]);
+
+        CATEGORIES_SECTIONS.push({
+          _id: categorie._id,
+          title: categorie.title,
+          count_courses: courses.length, // cantidad de cursos para la categoria
+          courses: courses.map((course) => {
+            return apiResource.Course.apiResourceCourse(course);
+          }),
+        });
+      }
+
+      return res.status(200).json({
+        categories: CATEGORIES_LIST,
+        courses_top: COURSES_TOPS,
+        courses_sections: CATEGORIES_SECTIONS,
+      });
     } catch (error) {
       console.log(error);
       return res.status(500).json({
