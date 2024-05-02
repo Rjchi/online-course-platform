@@ -9,12 +9,17 @@ export default {
         name: course.user.name,
         surname: course.user.surname,
         profession: course.user.profession,
+        avatar: course.user.avatar
+          ? process.env.URL_BACKEND + "/api/home/imagen-usuario/" + course.user.avatar
+          : null,
       },
       title: course.title,
       state: course.state,
       level: course.level,
       idioma: course.idioma,
-      vimeo_id: course.vimeo_id ? process.env.VIMEO_URL + course.vimeo_id : null,
+      vimeo_id: course.vimeo_id
+        ? process.env.VIMEO_URL + course.vimeo_id
+        : null,
       subtitle: course.subtitle,
       categorie: {
         // Formatiamos la categoria
