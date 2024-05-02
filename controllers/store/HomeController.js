@@ -65,16 +65,19 @@ export default {
   list: async (req, res) => {
     try {
       let categories = await models.Categorie.find({ state: 1 });
+      let CATEGORIES_LIST = [];
 
-      categories = categories.map(async (categorie) => {
-        let count_courses = await models.Course.count({
+      for (let categorie of categories) {
+        let count_courses = await models.Course.countDocuments({
           categorie: categorie._id,
         });
 
-        return apiResource.Categorie.apiResourceCategorie(categorie);
-      });
+        CATEGORIES_LIST.push(
+          apiResource.Categorie.apiResourceCategorie(categorie, count_courses)
+        );
+      }
 
-      return res.status(200).json({ categories });
+      return res.status(200).json({ categories: CATEGORIES_LIST });
     } catch (error) {
       console.log(error);
       return res.status(500).json({
