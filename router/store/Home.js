@@ -6,7 +6,8 @@ const router = routerx();
 router
   .get("/list", homeController.list)
   .put("/update", homeController.update)
-  .delete("/remove/:id", homeController.remove)
   .post("/register", homeController.register)
+  .delete("/remove/:id", homeController.remove)
+  .get("/imagen-usuario/:img", homeController.getImage)
 
 export default router;
