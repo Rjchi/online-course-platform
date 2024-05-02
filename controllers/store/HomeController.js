@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import models from "../../models";
 import apiResource from "../../resource";
 
@@ -77,11 +79,93 @@ export default {
         );
       }
 
-      return res.status(200).json({ categories: CATEGORIES_LIST });
+      let COURSES_TOPS = [];
+
+      /**------------------------------------------------------
+       * | aggregate nos permite utilizar funciones avanzadas
+       * | a diferencia de find, con sample le decimos cuantos
+       * | registros queremos traer y match para la condicion
+       * ------------------------------------------------------*/
+      let courses_top = await models.Course.aggregate([
+        { $match: { state: 2 } },
+        { $sample: { size: 3 } },
+        /**-------------------------------------------------------------------------
+         * | Utilizamos $lookup ya que populate no se puede utilizar con aggregate
+         * -------------------------------------------------------------------------*/
+        {
+          $lookup: {
+            from: "users", // nombre (en la base de datos) de la coleccion de la que viene la relación
+            localField: "user", // nombre del campo en la coleccion
+            foreignField: "_id", // cual es el campo en la coleccion que tiene relacion con el localField
+            as: "user", // nombre que le vamos a dar al resultado de esta relacion
+          },
+        },
+        /**-----------------------------------------------------------------------------
+         * | $unwind lo utilizamos en este caso para que el resultado no sea un array
+         * | ya que solo tenemos un instructor por curso en caso de tener varios
+         * | instructores podemos eliminar $unwind
+         * -----------------------------------------------------------------------------*/
+        {
+          $unwind: "$user", // nombre que tiene la relación
+        },
+        {
+          $lookup: {
+            from: "categories",
+            localField: "categorie",
+            foreignField: "_id",
+            as: "categorie",
+          },
+        },
+        {
+          $unwind: "$categorie",
+        },
+      ]);
+
+      for (let course_top of courses_top) {
+        COURSES_TOPS.push(apiResource.Course.apiResourceCourse(course_top));
+      }
+
+      return res
+        .status(200)
+        .json({ categories: CATEGORIES_LIST, courses_top: COURSES_TOPS });
     } catch (error) {
       console.log(error);
       return res.status(500).json({
         msg: "OCURRIO UN ERROR",
+      });
+    }
+  },
+  getImage: async (req, res) => {
+    try {
+      const img = req.params["img"];
+
+      if (!img) return res.status(500).json({ msg: "OCURRIO UN PROBLEMA" });
+
+      /**----------------------------------------
+       * | Valicamos si el archivo existe o no
+       * | con stat de fs
+       * ----------------------------------------*/
+      fs.stat("./uploads/user/" + img, function (err) {
+        if (!err) {
+          let path_img = "./uploads/user/" + img;
+
+          /**------------------------------------------------------------------
+           * | Asi visualizamos desde la api la imagen que estamos almacenando
+           * ------------------------------------------------------------------*/
+          return res.status(200).sendFile(path.resolve(path_img));
+        } else {
+          /**----------------------------------------------------------
+           * | En caso de error retornamos una imagen por defecto
+           * ----------------------------------------------------------*/
+          let path_img = "./uploads/default.jpg";
+
+          return res.status(200).sendFile(path.resolve(path_img));
+        }
+      });
+    } catch (error) {
+      console.log(error.messge);
+      return res.status(500).send({
+        msg: "OCURRIO UN PROBLEMA",
       });
     }
   },
