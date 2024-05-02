@@ -142,6 +142,7 @@ export default {
         CATEGORIES_SECTIONS.push({
           _id: categorie._id,
           title: categorie.title,
+          title_empty: categorie.title.replace(" ", ""),
           count_courses: courses.length, // cantidad de cursos para la categoria
           courses: courses.map((course) => {
             return apiResource.Course.apiResourceCourse(course);
