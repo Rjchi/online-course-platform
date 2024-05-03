@@ -1,5 +1,5 @@
 export default {
-  apiResourceCourse: (course) => {
+  apiResourceCourse: (course, discount_g = null) => {
     return {
       _id: course._id,
       slug: course.slug,
@@ -10,7 +10,9 @@ export default {
         surname: course.user.surname,
         profession: course.user.profession,
         avatar: course.user.avatar
-          ? process.env.URL_BACKEND + "/api/home/imagen-usuario/" + course.user.avatar
+          ? process.env.URL_BACKEND +
+            "/api/home/imagen-usuario/" +
+            course.user.avatar
           : null,
       },
       title: course.title,
@@ -34,6 +36,7 @@ export default {
       image: course.image
         ? process.env.URL_BACKEND + "/api/courses/imagen-course/" + course.image
         : null,
+      discount_g: discount_g,
     };
   },
 };
