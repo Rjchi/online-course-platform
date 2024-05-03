@@ -109,12 +109,32 @@ export default {
         }
       }
 
+      let campaing_flash = await models.Discount.findOne({
+        type_campaing: 2,
+        start_date_num: { $lte: time_now }, // time_now >= start_date_num
+        end_date_num: { $gte: time_now }, // time_now <= end_date_num
+      });
+
+      let COURSES_FLASH = [];
+
+      if (campaing_flash) {
+        for (const course of campaing_flash.courses) {
+          let MODEL_COURSES = await models.Course.findById({ _id: course });
+
+          COURSES_FLASH.push(
+            apiResource.Course.apiResourceCourse(MODEL_COURSES)
+          );
+        }
+      }
+
       return res.status(200).json({
         categories: CATEGORIES_LIST,
         courses_top: COURSES_TOPS,
         courses_sections: CATEGORIES_SECTIONS,
         courses_banner: COURSES_BANNER,
         campaing_banner: campaing_baner,
+        courses_flash: COURSES_FLASH,
+        campaing_flash: campaing_flash,
       });
     } catch (error) {
       console.log(error);
