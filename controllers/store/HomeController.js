@@ -6,9 +6,13 @@ import apiResource from "../../resource";
 export default {
   list: async (req, res) => {
     try {
+      let time_now = req.query.time_now;
+
+      /**--------------
+       * | CATEGORIES
+       * --------------*/
       let categories = await models.Categorie.find({ state: 1 });
       let CATEGORIES_LIST = [];
-      let time_now = req.query.time_now;
 
       for (let categorie of categories) {
         let count_courses = await models.Course.countDocuments({
@@ -20,6 +24,18 @@ export default {
         );
       }
 
+      /**------------------
+       * | CAMPAING NORMAL
+       * ------------------*/
+      let campaing_home = await models.Discount.findOne({
+        type_campaing: 1,
+        start_date_num: { $lte: time_now }, // time_now >= start_date_num
+        end_date_num: { $gte: time_now }, // time_now <= end_date_num
+      });
+
+      /**------------------
+       * | COURSES TOP
+       * ------------------*/
       let COURSES_TOPS = [];
 
       /**------------------------------------------------------
@@ -63,7 +79,37 @@ export default {
       ]);
 
       for (let course_top of courses_top) {
-        COURSES_TOPS.push(apiResource.Course.apiResourceCourse(course_top));
+        let DISCONT_G = null;
+
+        if (campaing_home) {
+          // 1 cursos
+          if (campaing_home.type_segment === 1) {
+            let courses_a = [];
+
+            campaing_home.courses.forEach((course) => {
+              courses_a.push(course._id);
+            });
+
+            if (courses_a.includes(course_top._id)) {
+              DISCONT_G = campaing_home;
+            }
+          }
+          // 2 categorias
+          if (campaing_home.type_segment === 2) {
+            let categories_a = [];
+
+            campaing_home.categories.forEach((categorie) => {
+              categories_a.push(categorie._id);
+            });
+
+            if (categories_a.includes(course_top.categorie)) {
+              DISCONT_G = campaing_home;
+            }
+          }
+        }
+        COURSES_TOPS.push(
+          apiResource.Course.apiResourceCourse(course_top, DISCONT_G)
+        );
       }
 
       let categories_sections = await models.Categorie.aggregate([
@@ -73,6 +119,9 @@ export default {
         },
       ]);
 
+      /**-----------------------
+       * | CATEGORIES SECTIONS
+       * -----------------------*/
       let CATEGORIES_SECTIONS = [];
 
       for (const categorie of categories_sections) {
@@ -91,6 +140,9 @@ export default {
         });
       }
 
+      /**------------------
+       * | CAMPAING BANNER
+       * ------------------*/
       let campaing_baner = await models.Discount.findOne({
         type_campaing: 3,
         start_date_num: { $lte: time_now },
@@ -109,6 +161,9 @@ export default {
         }
       }
 
+      /**------------------
+       * | CAMPAING FLASH
+       * ------------------*/
       let campaing_flash = await models.Discount.findOne({
         type_campaing: 2,
         start_date_num: { $lte: time_now }, // time_now >= start_date_num
