@@ -87,10 +87,10 @@ export default {
             let courses_a = [];
 
             campaing_home.courses.forEach((course) => {
-              courses_a.push(course._id);
+              courses_a.push(course);
             });
 
-            if (courses_a.includes(course_top._id)) {
+            if (courses_a.includes(course_top._id + "")) {
               DISCONT_G = campaing_home;
             }
           }
@@ -102,7 +102,7 @@ export default {
               categories_a.push(categorie._id);
             });
 
-            if (categories_a.includes(course_top.categorie)) {
+            if (categories_a.includes(course_top.categorie + "")) {
               DISCONT_G = campaing_home;
             }
           }
