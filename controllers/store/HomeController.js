@@ -134,8 +134,36 @@ export default {
           title: categorie.title,
           title_empty: categorie.title.replace(" ", ""),
           count_courses: courses.length, // cantidad de cursos para la categoria
-          courses: courses.map((course) => {
-            return apiResource.Course.apiResourceCourse(course);
+          courses: courses.map((course_map) => {
+            let DISCONT_G = null;
+
+            if (campaing_home) {
+              // 1 cursos
+              if (campaing_home.type_segment === 1) {
+                let courses_a = [];
+
+                campaing_home.courses.forEach((course) => {
+                  courses_a.push(course);
+                });
+
+                if (courses_a.includes(course_map._id + "")) {
+                  DISCONT_G = campaing_home;
+                }
+              }
+              // 2 categorias
+              if (campaing_home.type_segment === 2) {
+                let categories_a = [];
+
+                campaing_home.categories.forEach((categorie) => {
+                  categories_a.push(categorie._id);
+                });
+
+                if (categories_a.includes(course_map.categorie + "")) {
+                  DISCONT_G = campaing_home;
+                }
+              }
+            }
+            return apiResource.Course.apiResourceCourse(course_map, DISCONT_G);
           }),
         });
       }
