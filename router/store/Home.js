@@ -5,6 +5,7 @@ const router = routerx();
 
 router
   .get("/list", homeController.list)
+  .get("/landig-course/:slug", homeController.showCourse)
   .get("/imagen-usuario/:img", homeController.getImage)
 
 export default router;
