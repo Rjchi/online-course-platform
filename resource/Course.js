@@ -42,7 +42,10 @@ export default {
   apiResourceCourseLanding: (
     course,
     discount_g = null,
-    malla_curricular = []
+    malla_curricular = [],
+    time_total_course = 0,
+    files_total_sections = 0,
+    count_course_instructor = 0,
   ) => {
     return {
       _id: course._id,
@@ -52,6 +55,7 @@ export default {
         _id: course.user._id,
         name: course.user.name,
         surname: course.user.surname,
+        count_course: count_course_instructor,
         profession: course.user.profession,
         avatar: course.user.avatar
           ? process.env.URL_BACKEND +
@@ -82,6 +86,8 @@ export default {
         : null,
       discount_g: discount_g,
       malla_curricular: malla_curricular,
+      time_parse: time_total_course,
+      files_count: files_total_sections,
     };
   },
 };
