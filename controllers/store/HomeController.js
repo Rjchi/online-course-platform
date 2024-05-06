@@ -3,6 +3,22 @@ import path from "path";
 import models from "../../models";
 import apiResource from "../../resource";
 
+function sumarTiempos(...tiempos) {
+  // Convierte cada tiempo en formato "hh:mm:ss" a segundos y suma todos los segundos.
+  const totalSegundos = tiempos.reduce((total, tiempo) => {
+    const [horas, minutos, segundos] = tiempo.split(":").map(Number);
+    return total + horas * 3600 + minutos * 60 + segundos;
+  }, 0);
+
+  // Convierte los segundos totales a formato "hh:mm:ss".
+  const horas = Math.floor(totalSegundos / 3600);
+  const minutos = Math.floor((totalSegundos % 3600) / 60);
+  const segundos = totalSegundos % 60;
+
+  // Retorna el resultado formateado.
+  return `${horas} horas ${minutos} minutos ${segundos} segundos`;
+}
+
 export default {
   list: async (req, res) => {
     try {
@@ -252,6 +268,151 @@ export default {
 
           return res.status(200).sendFile(path.resolve(path_img));
         }
+      });
+    } catch (error) {
+      console.log(error.messge);
+      return res.status(500).send({
+        msg: "OCURRIO UN PROBLEMA",
+      });
+    }
+  },
+  showCourse: async (req, res) => {
+    try {
+      let slug = req.params["slug"];
+      let course = await models.Course.findOne({ slug });
+
+      if (!course)
+        return res
+          .status(200)
+          .json({ code: 404, message_text: "EL CURSO NO EXISTE" });
+
+      let discount_g = null;
+      let mallaCurricular = [];
+
+      /**-----------------------------------
+       * | Todas las secciones del curso
+       * -----------------------------------*/
+      let sections = await models.CourseSection.find({ course: course._id });
+      let timeTotalSections = [];
+      let filesTotalSections = 0;
+
+      for (const section of sections) {
+        section = section.toObject(); // toObject para que me permita agregar nuevas propiedades
+
+        /**--------------------------------------
+         * | Traemos las clases de una sección
+         * --------------------------------------*/
+        let clasesSection = await models.CourseClass.find({
+          section: section._id,
+        });
+
+        for (let claseSection of clasesSection) {
+          claseSection = claseSection.toObject();
+          let ClaseFiles = await models.CourseClassFile.find({
+            clase: claseSection._id,
+          });
+
+          claseSection.files = [];
+
+          let clasesNew = [];
+          let timeClases = [];
+
+          for (const ClaseFile of ClaseFiles) {
+            claseSection.files.unshift({
+              _id: ClaseFile._id,
+              file:
+                process.env.URL_BACKEND +
+                "/api/course-class/file-class/" +
+                ClaseFile.file,
+              file_name: ClaseFile.file_name,
+              size: ClaseFile.size,
+              clase: ClaseFile.clase,
+            });
+          }
+
+          filesTotalSections += claseSection.files.length;
+
+          claseSection.vimeo_id = claseSection.vimeo_id
+            ? process.env.VIMEO_URL + claseSection.vimeo_id
+            : null;
+
+          let time_class = [claseSection.time];
+          timeClases.push(claseSection.time);
+          timeTotalSections.push(claseSection.time);
+
+          const tiempoTotal = claseSection.time
+            ? sumarTiempos(...time_class)
+            : 0;
+
+          claseSection.time_parse = tiempoTotal;
+          clasesNew.unshift(claseSection);
+        }
+
+        /**--------------------------------
+         * | Adjuntamos la propiedad clases
+         * --------------------------------*/
+        section.clases = clasesNew;
+        section.time_parse = sumarTiempos(...timeClases);
+        mallaCurricular.push(section);
+      }
+
+      let timeTotalCourse = sumarTiempos(...timeTotalSections);
+      let count_course_instructor = await models.Course.countDocuments({
+        user: course.user,
+        state: 2,
+      });
+
+      /**------------------------------------
+       * | Curso aleatorio de un instructor
+       * ------------------------------------*/
+      let course_instructor = await models.Course.aggregate([
+        {
+          $match: {
+            state: 2,
+            user: course.user,
+          },
+        },
+        {
+          $sample: {
+            size: 2,
+          },
+        },
+      ]);
+
+      /**-------------------------------------------------
+       * | 2 Cursos relacionados en base a la categoria
+       * -------------------------------------------------*/
+      let course_relateds = await models.Course.aggregate([
+        {
+          $match: {
+            categorie: course.categorie,
+            _id: {
+              $ne: course._id,
+            },
+          },
+        },
+        {
+          $sample: {
+            size: 2,
+          },
+        },
+      ]);
+
+      return res.status(200).json({
+        course: apiResource.Course.apiResourceCourseLanding(
+          course,
+          discount_g,
+          mallaCurricular,
+          timeTotalCourse,
+          filesTotalSections,
+          count_course_instructor
+        ),
+        course_instructor: course_instructor.map((course_inst) => {
+          return apiResource.Course.apiResourceCourse(course_inst);
+        }),
+        course_relateds: course_relateds.map((course_rel) => {
+          return apiResource.Course.apiResourceCourse(course_rel);
+        }),
       });
     } catch (error) {
       console.log(error.messge);
