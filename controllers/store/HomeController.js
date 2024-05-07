@@ -296,7 +296,7 @@ export default {
       let timeTotalSections = [];
       let filesTotalSections = 0;
 
-      for (const section of sections) {
+      for (let section of sections) {
         section = section.toObject(); // toObject para que me permita agregar nuevas propiedades
 
         /**--------------------------------------
@@ -306,18 +306,19 @@ export default {
           section: section._id,
         });
 
+        let clasesNew = [];
+        let timeClases = [];
+
         for (let claseSection of clasesSection) {
           claseSection = claseSection.toObject();
+
           let ClaseFiles = await models.CourseClassFile.find({
             clase: claseSection._id,
           });
 
           claseSection.files = [];
 
-          let clasesNew = [];
-          let timeClases = [];
-
-          for (const ClaseFile of ClaseFiles) {
+          for (let ClaseFile of ClaseFiles) {
             claseSection.files.unshift({
               _id: ClaseFile._id,
               file:
@@ -336,15 +337,18 @@ export default {
             ? process.env.VIMEO_URL + claseSection.vimeo_id
             : null;
 
-          let time_class = [claseSection.time];
-          timeClases.push(claseSection.time);
-          timeTotalSections.push(claseSection.time);
+          if (claseSection && claseSection.time) {
+            let time_class = [claseSection.time];
+            timeClases.push(claseSection.time);
+            timeTotalSections.push(claseSection.time);
 
-          const tiempoTotal = claseSection.time
-            ? sumarTiempos(...time_class)
-            : 0;
+            const tiempoTotal = claseSection.time
+              ? sumarTiempos(...time_class)
+              : 0;
 
-          claseSection.time_parse = tiempoTotal;
+            claseSection.time_parse = tiempoTotal;
+          }
+
           clasesNew.unshift(claseSection);
         }
 
@@ -415,7 +419,7 @@ export default {
         }),
       });
     } catch (error) {
-      console.log(error.messge);
+      console.log(error);
       return res.status(500).send({
         msg: "OCURRIO UN PROBLEMA",
       });
