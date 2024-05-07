@@ -18,11 +18,11 @@ export default {
         });
       }
 
-      if (req.files && req.files.imagen) {
-        const img_path = req.files.imagen.path;
+      if (req.files && req.files.image) {
+        const img_path = req.files.image.path;
         const imagen_name = img_path.split("\\")[2];
 
-        req.body.imagen = imagen_name;
+        req.body.image = imagen_name;
       }
 
       const NewCategorie = await models.Categorie.create(req.body);
@@ -51,11 +51,11 @@ export default {
         });
       }
 
-      if (req.files && req.files.imagen) {
-        const img_path = req.files.imagen.path;
+      if (req.files && req.files.image) {
+        const img_path = req.files.image.path;
         const imagen_name = img_path.split("\\")[2];
 
-        req.body.imagen = imagen_name;
+        req.body.image = imagen_name;
       }
 
       const EditCategorie = await models.Categorie.findByIdAndUpdate(

@@ -53,9 +53,24 @@ export default {
   list: async (req, res) => {
     try {
       let search = req.query.search;
+      let state = req.query.state;
+
+      let filter = [{ code: new RegExp("", "i") }];
+
+      if (search) {
+        filter.push({ code: new RegExp(search, "i") });
+      }
+
+      if (state) {
+        if (!search) {
+          filter = [];
+        }
+
+        filter.push({ state: state });
+      }
 
       let cupones = await models.Cupone.find({
-        $or: { code: new RegExp(search, "i") },
+        $and: filter,
       }).sort({ createAt: -1 });
 
       return res.status(200).json({ cupones });
@@ -108,10 +123,10 @@ export default {
         return {
           _id: categorie._id,
           title: categorie.title,
-          imagen: categorie.imagen
+          image: categorie.image
             ? process.env.URL_BACKEND +
               "/api/categories/imagen-categorie/" +
-              categorie.imagen
+              categorie.image
             : null,
         };
       });
