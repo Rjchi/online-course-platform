@@ -154,7 +154,7 @@ export default {
 
         CourseClass.files = [];
 
-        for (const ClaseFile of ClaseFiles) {
+        for (let ClaseFile of ClaseFiles) {
           CourseClass.files.unshift({
             _id: ClaseFile._id,
             file:
