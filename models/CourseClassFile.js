@@ -10,6 +10,6 @@ const CourseClassFileSchema = new Schema(
   { timestamps: true }
 );
 
-const CourseClassFile = mongoose.model("course_class_file", CourseClassFileSchema);
+const CourseClassFile = mongoose.model("course_class_files", CourseClassFileSchema);
 
 export default CourseClassFile;
