@@ -384,6 +384,17 @@ export default {
             size: 2,
           },
         },
+        {
+          $lookup: {
+            from: "users", // nombre (en la base de datos) de la coleccion de la que viene la relación
+            localField: "user", // nombre del campo en la coleccion
+            foreignField: "_id", // cual es el campo en la coleccion que tiene relacion con el localField
+            as: "user", // nombre que le vamos a dar al resultado de esta relacion
+          },
+        },
+        {
+          $unwind: "$user", // nombre que tiene la relación
+        },
       ]);
 
       /**-------------------------------------------------
@@ -402,6 +413,17 @@ export default {
           $sample: {
             size: 2,
           },
+        },
+        {
+          $lookup: {
+            from: "users", // nombre (en la base de datos) de la coleccion de la que viene la relación
+            localField: "user", // nombre del campo en la coleccion
+            foreignField: "_id", // cual es el campo en la coleccion que tiene relacion con el localField
+            as: "user", // nombre que le vamos a dar al resultado de esta relacion
+          },
+        },
+        {
+          $unwind: "$user", // nombre que tiene la relación
         },
       ]);
 
