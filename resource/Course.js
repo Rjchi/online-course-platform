@@ -57,6 +57,7 @@ export default {
         surname: course.user.surname,
         count_course: count_course_instructor,
         profession: course.user.profession,
+        description: course.user.description,
         avatar: course.user.avatar
           ? process.env.URL_BACKEND +
             "/api/home/imagen-usuario/" +
