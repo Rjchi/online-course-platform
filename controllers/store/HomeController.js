@@ -279,7 +279,10 @@ export default {
   showCourse: async (req, res) => {
     try {
       let slug = req.params["slug"];
-      let course = await models.Course.findOne({ slug }).populate(["user"]);
+      let course = await models.Course.findOne({ slug }).populate([
+        "user",
+        "categorie",
+      ]);
 
       if (!course)
         return res
