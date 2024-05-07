@@ -365,7 +365,7 @@ export default {
 
       let timeTotalCourse = sumarTiempos(...timeTotalSections);
       let count_course_instructor = await models.Course.countDocuments({
-        user: course.user,
+        user: course.user._id,
         state: 2,
       });
 
@@ -376,7 +376,7 @@ export default {
         {
           $match: {
             state: 2,
-            user: course.user,
+            user: course.user._id,
           },
         },
         {
@@ -392,7 +392,7 @@ export default {
       let course_relateds = await models.Course.aggregate([
         {
           $match: {
-            categorie: course.categorie,
+            categorie: course.categorie._id,
             _id: {
               $ne: course._id,
             },
