@@ -32,7 +32,7 @@ function discountG(campaing_normal, course) {
       });
 
       if (courses_a.includes(course._id + "")) {
-        return discount_g = campaing_normal;
+        return (discount_g = campaing_normal);
       }
     }
     // 2 categorias
@@ -44,7 +44,7 @@ function discountG(campaing_normal, course) {
       });
 
       if (categories_a.includes(course.categorie._id + "")) {
-        return discount_g = campaing_normal;
+        return (discount_g = campaing_normal);
       }
     }
   }
@@ -311,12 +311,21 @@ export default {
     try {
       let slug = req.params["slug"];
       let time_now = req.query.time_now;
+      let campaing_special = req.query.campaing_special;
 
-      let campaing_normal = await models.Discount.findOne({
-        type_campaing: 1,
-        start_date_num: { $lte: time_now }, // time_now >= start_date_num
-        end_date_num: { $gte: time_now }, // time_now <= end_date_num
-      });
+      let campaing_normal = null;
+
+      if (campaing_special) {
+        campaing_normal = await models.Discount.findOne({
+          _id: campaing_special,
+        });
+      } else {
+        campaing_normal = await models.Discount.findOne({
+          type_campaing: 1,
+          start_date_num: { $lte: time_now }, // time_now >= start_date_num
+          end_date_num: { $gte: time_now }, // time_now <= end_date_num
+        });
+      }
 
       let course = await models.Course.findOne({ slug }).populate([
         "user",
