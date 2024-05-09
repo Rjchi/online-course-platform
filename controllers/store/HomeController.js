@@ -477,7 +477,7 @@ export default {
         },
         {
           $sample: {
-            size: 2,
+            size: 4,
           },
         },
         {
