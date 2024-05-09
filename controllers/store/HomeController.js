@@ -50,6 +50,21 @@ function discountG(campaing_normal, course) {
   }
 }
 
+const numeroDeClases = async (course) => {
+  let n_clases = 0;
+  let sections = await models.CourseSection.find({ course: course._id });
+
+  for (let section of sections) {
+    let clases = await models.CourseClass.countDocuments({
+      section: section._id,
+    });
+
+    n_clases += clases;
+  }
+
+  return n_clases;
+};
+
 export default {
   list: async (req, res) => {
     try {
@@ -154,8 +169,10 @@ export default {
             }
           }
         }
+        let n_clases = await numeroDeClases(course_top);
+
         COURSES_TOPS.push(
-          apiResource.Course.apiResourceCourse(course_top, DISCONT_G)
+          apiResource.Course.apiResourceCourse(course_top, DISCONT_G, n_clases)
         );
       }
 
@@ -176,42 +193,54 @@ export default {
           categorie: categorie._id,
         }).populate(["categorie", "user"]);
 
+        let course_c = [];
+
+        for (const course_map of courses) {
+          let DISCONT_G = null;
+
+          if (campaing_home) {
+            // 1 cursos
+            if (campaing_home.type_segment === 1) {
+              let courses_a = [];
+
+              campaing_home.courses.forEach((course) => {
+                courses_a.push(course);
+              });
+
+              if (courses_a.includes(course_map._id + "")) {
+                DISCONT_G = campaing_home;
+              }
+            }
+            // 2 categorias
+            if (campaing_home.type_segment === 2) {
+              let categories_a = [];
+
+              campaing_home.categories.forEach((categorie) => {
+                categories_a.push(categorie._id);
+              });
+
+              if (categories_a.includes(course_map.categorie + "")) {
+                DISCONT_G = campaing_home;
+              }
+            }
+          }
+          let n_clases = await numeroDeClases(course_map);
+
+          course_c.push(
+            apiResource.Course.apiResourceCourse(
+              course_map,
+              DISCONT_G,
+              n_clases
+            )
+          );
+        }
+
         CATEGORIES_SECTIONS.push({
           _id: categorie._id,
           title: categorie.title,
           title_empty: categorie.title.replace(" ", ""),
           count_courses: courses.length, // cantidad de cursos para la categoria
-          courses: courses.map((course_map) => {
-            let DISCONT_G = null;
-
-            if (campaing_home) {
-              // 1 cursos
-              if (campaing_home.type_segment === 1) {
-                let courses_a = [];
-
-                campaing_home.courses.forEach((course) => {
-                  courses_a.push(course);
-                });
-
-                if (courses_a.includes(course_map._id + "")) {
-                  DISCONT_G = campaing_home;
-                }
-              }
-              // 2 categorias
-              if (campaing_home.type_segment === 2) {
-                let categories_a = [];
-
-                campaing_home.categories.forEach((categorie) => {
-                  categories_a.push(categorie._id);
-                });
-
-                if (categories_a.includes(course_map.categorie + "")) {
-                  DISCONT_G = campaing_home;
-                }
-              }
-            }
-            return apiResource.Course.apiResourceCourse(course_map, DISCONT_G);
-          }),
+          courses: course_c,
         });
       }
 
@@ -230,8 +259,10 @@ export default {
         for (const course of campaing_baner.courses) {
           let MODEL_COURSES = await models.Course.findById({ _id: course });
 
+          let n_clases = await numeroDeClases({ _id: course });
+
           COURSES_BANNER.push(
-            apiResource.Course.apiResourceCourse(MODEL_COURSES)
+            apiResource.Course.apiResourceCourse(MODEL_COURSES, null, n_clases)
           );
         }
       }
@@ -251,8 +282,10 @@ export default {
         for (const course of campaing_flash.courses) {
           let MODEL_COURSES = await models.Course.findById({ _id: course });
 
+          let n_clases = await numeroDeClases({ _id: course });
+
           COURSES_FLASH.push(
-            apiResource.Course.apiResourceCourse(MODEL_COURSES)
+            apiResource.Course.apiResourceCourse(MODEL_COURSES, null, n_clases)
           );
         }
       }
@@ -472,8 +505,23 @@ export default {
         },
       ]);
 
+      let n_course_instructor = [];
+
+      for (const course_inst of course_instructor) {
+        let discount_g = discountG(campaing_normal, course_inst);
+        let n_clases = await numeroDeClases(course_inst);
+
+        n_course_instructor.push(
+          apiResource.Course.apiResourceCourse(
+            course_inst,
+            discount_g,
+            n_clases
+          )
+        );
+      }
+
       /**-------------------------------------------------
-       * | 2 Cursos relacionados en base a la categoria
+       * | Cuatro Cursos relacionados en base a la categoria
        * -------------------------------------------------*/
       let course_relateds = await models.Course.aggregate([
         {
@@ -502,6 +550,17 @@ export default {
         },
       ]);
 
+      let n_course_relateds = [];
+
+      for (const course_rel of course_relateds) {
+        let discount_g = discountG(campaing_normal, course_rel);
+        let n_clases = await numeroDeClases(course_rel);
+
+        n_course_relateds.push(
+          apiResource.Course.apiResourceCourse(course_rel, discount_g, n_clases)
+        );
+      }
+
       return res.status(200).json({
         course: apiResource.Course.apiResourceCourseLanding(
           course,
@@ -511,14 +570,8 @@ export default {
           filesTotalSections,
           count_course_instructor
         ),
-        course_instructor: course_instructor.map((course_inst) => {
-          let discount_g = discountG(campaing_normal, course_inst);
-          return apiResource.Course.apiResourceCourse(course_inst, discount_g);
-        }),
-        course_relateds: course_relateds.map((course_rel) => {
-          let discount_g = discountG(campaing_normal, course_rel);
-          return apiResource.Course.apiResourceCourse(course_rel, discount_g);
-        }),
+        course_instructor: n_course_instructor,
+        course_relateds: n_course_relateds,
       });
     } catch (error) {
       console.log(error);
