@@ -19,6 +19,37 @@ function sumarTiempos(...tiempos) {
   return `${horas} horas ${minutos} minutos ${segundos} segundos`;
 }
 
+function discountG(campaing_normal, course) {
+  let discount_g = null;
+
+  if (campaing_normal) {
+    // 1 cursos
+    if (campaing_normal.type_segment === 1) {
+      let courses_a = [];
+
+      campaing_normal.courses.forEach((course) => {
+        courses_a.push(course);
+      });
+
+      if (courses_a.includes(course._id + "")) {
+        return discount_g = campaing_normal;
+      }
+    }
+    // 2 categorias
+    if (campaing_normal.type_segment === 2) {
+      let categories_a = [];
+
+      campaing_normal.categories.forEach((categorie) => {
+        categories_a.push(categorie._id);
+      });
+
+      if (categories_a.includes(course.categorie._id + "")) {
+        return discount_g = campaing_normal;
+      }
+    }
+  }
+}
+
 export default {
   list: async (req, res) => {
     try {
@@ -279,6 +310,14 @@ export default {
   showCourse: async (req, res) => {
     try {
       let slug = req.params["slug"];
+      let time_now = req.query.time_now;
+
+      let campaing_normal = await models.Discount.findOne({
+        type_campaing: 1,
+        start_date_num: { $lte: time_now }, // time_now >= start_date_num
+        end_date_num: { $gte: time_now }, // time_now <= end_date_num
+      });
+
       let course = await models.Course.findOne({ slug }).populate([
         "user",
         "categorie",
@@ -291,6 +330,33 @@ export default {
 
       let discount_g = null;
       let mallaCurricular = [];
+
+      if (campaing_normal) {
+        // 1 cursos
+        if (campaing_normal.type_segment === 1) {
+          let courses_a = [];
+
+          campaing_normal.courses.forEach((course) => {
+            courses_a.push(course);
+          });
+
+          if (courses_a.includes(course._id + "")) {
+            discount_g = campaing_normal;
+          }
+        }
+        // 2 categorias
+        if (campaing_normal.type_segment === 2) {
+          let categories_a = [];
+
+          campaing_normal.categories.forEach((categorie) => {
+            categories_a.push(categorie._id);
+          });
+
+          if (categories_a.includes(course.categorie._id + "")) {
+            discount_g = campaing_normal;
+          }
+        }
+      }
 
       /**-----------------------------------
        * | Todas las secciones del curso
@@ -437,10 +503,12 @@ export default {
           count_course_instructor
         ),
         course_instructor: course_instructor.map((course_inst) => {
-          return apiResource.Course.apiResourceCourse(course_inst);
+          let discount_g = discountG(campaing_normal, course_inst);
+          return apiResource.Course.apiResourceCourse(course_inst, discount_g);
         }),
         course_relateds: course_relateds.map((course_rel) => {
-          return apiResource.Course.apiResourceCourse(course_rel);
+          let discount_g = discountG(campaing_normal, course_rel);
+          return apiResource.Course.apiResourceCourse(course_rel, discount_g);
         }),
       });
     } catch (error) {
