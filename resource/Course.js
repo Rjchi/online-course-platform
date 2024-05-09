@@ -1,5 +1,5 @@
 export default {
-  apiResourceCourse: (course, discount_g = null) => {
+  apiResourceCourse: (course, discount_g = null, n_clases = 0) => {
     return {
       _id: course._id,
       slug: course.slug,
@@ -37,6 +37,7 @@ export default {
         ? process.env.URL_BACKEND + "/api/courses/imagen-course/" + course.image
         : null,
       discount_g: discount_g,
+      n_clases: n_clases,
     };
   },
   apiResourceCourseLanding: (
