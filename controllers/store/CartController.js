@@ -1,4 +1,5 @@
 import models from "../../models";
+import apiResource from "../../resource";
 import useToken from "../../service/token";
 
 export default {
@@ -57,10 +58,21 @@ export default {
           message_text: "EL CURSO YA SE AGREGO A LA LISTA",
         });
 
-      let NewCart = await models.Cart.create(req.body);
+      let Cart = await models.Cart.create(req.body);
+
+      /**---------------------------------------------------------------
+       * | consultamos los detalles de un curso y dentro de ese curso
+       * | consultamos los detalles de la categoria (populate anidado)
+       * ---------------------------------------------------------------*/
+      let NewCart = await models.Cart.findById({ _id: Cart._id }).populate({
+        path: "course", // nombre de la relación
+        populate: {
+          path: "categorie",
+        },
+      });
 
       return res.status(200).json({
-        cart: NewCart,
+        cart: apiResource.Cart.apiResourceCart(NewCart),
         message_text: "EL CURSO SE AGREGO CORRECTAMENTE",
       });
     } catch (error) {
