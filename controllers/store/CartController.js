@@ -30,6 +30,13 @@ export default {
   },
   remove: async (req, res) => {
     try {
+      let id = req.params.id;
+
+      await models.Cart.findByIdAndDelete({ _id: id });
+
+      return res.status(200).json({
+        message_text: "EL CURSO SE A ELIMINADO DEL CARRITO DE COMPRAS",
+      });
     } catch (error) {
       console.log(error);
       return res.status(500).json({
