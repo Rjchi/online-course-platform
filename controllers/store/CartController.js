@@ -8,7 +8,7 @@ export default {
       let token = req.headers.token;
       let user = useToken.decode(token);
 
-      let carts = await models.Cart.find({ user: user }).populate({
+      let carts = await models.Cart.find({ user: user._id }).populate({
         path: "course",
         populate: {
           path: "categorie",
@@ -56,9 +56,12 @@ export default {
   },
   register: async (req, res) => {
     try {
+      let token = req.headers.token;
+      let user = useToken.decode(token);
+
       let cart_exit = await models.Cart.find({
-        course: req.body.course,
-        user: req.body.user,
+        course: req.body.course._id,
+        user: user._id,
       });
 
       if (cart_exit)
@@ -67,6 +70,7 @@ export default {
           message_text: "EL CURSO YA SE AGREGO A LA LISTA",
         });
 
+      req.body.user = user._id;
       let Cart = await models.Cart.create(req.body);
 
       /**---------------------------------------------------------------
