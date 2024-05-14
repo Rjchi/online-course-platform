@@ -4,6 +4,14 @@ import useToken from "../../service/token";
 export default {
   list: async (req, res) => {
     try {
+      let token = req.headers.token;
+      let user = useToken.decode(token);
+
+      let carts = await models.Cart.find({ user: user });
+
+      return res.status(200).json({
+        carts,
+      });
     } catch (error) {
       console.log(error);
       return res.status(500).json({
