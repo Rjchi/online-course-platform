@@ -11,7 +11,7 @@ const CartSchema = new Schema(
     code_cupon:         { type: String, required: false },
     type_discount:      { type: Number, required: false }, // 1 es por porcentaje y 2 es por monto fijo
     code_discount:      { type: String, required: false },
-    campaing_discount:  { type: Number, required: true },
+    campaing_discount:  { type: Number, required: false },
   },
   { timestamps: true }
 );
