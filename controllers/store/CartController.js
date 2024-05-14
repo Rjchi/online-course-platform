@@ -8,7 +8,16 @@ export default {
       let token = req.headers.token;
       let user = useToken.decode(token);
 
-      let carts = await models.Cart.find({ user: user });
+      let carts = await models.Cart.find({ user: user }).populate({
+        path: "course",
+        populate: {
+          path: "categorie",
+        },
+      });
+
+      carts = carts.map((cart) => {
+        return apiResource.Cart.apiResourceCart(cart);
+      });
 
       return res.status(200).json({
         carts,
