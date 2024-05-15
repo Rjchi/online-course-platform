@@ -6,7 +6,7 @@ export default {
   list: async (req, res) => {
     try {
       let token = req.headers.token;
-      let user = useToken.decode(token);
+      let user = await useToken.decode(token);
 
       let carts = await models.Cart.find({ user: user._id }).populate({
         path: "course",
