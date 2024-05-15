@@ -57,9 +57,9 @@ export default {
   register: async (req, res) => {
     try {
       let token = req.headers.token;
-      let user = useToken.decode(token);
+      let user = await useToken.decode(token);
 
-      let cart_exit = await models.Cart.find({
+      let cart_exit = await models.Cart.findOne({
         course: req.body.course._id,
         user: user._id,
       });
