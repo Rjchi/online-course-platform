@@ -42,7 +42,7 @@ export default {
     try {
       let id = req.params.id;
 
-      await models.Cart.findByIdAndDelete({ _id: id });
+      await models.Cart.deleteOne({ course: { _id: id } });
 
       return res.status(200).json({
         message_text: "EL CURSO SE A ELIMINADO DEL CARRITO DE COMPRAS",
