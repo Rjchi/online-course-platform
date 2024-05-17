@@ -6,6 +6,6 @@ import SaleController from "../../controllers/store/SaleController.js";
 const router = routerx();
 
 router
-  .get("/register", [auth.verifyTienda], SaleController.register)
+  .post("/register", [auth.verifyTienda], SaleController.register)
 
 export default router;
