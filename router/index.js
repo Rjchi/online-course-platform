@@ -16,6 +16,7 @@ import CourseSection from "./CourseSection";
  * -----------*/
 import Home from "./store/Home";
 import Cart from "./store/Cart";
+import Sale from "./store/Sale";
 
 const router = routerx();
 
@@ -29,6 +30,7 @@ router
   .use("/course-section", CourseSection)
 
   .use("/home", Home)
-  .use("/cart", Cart);
+  .use("/cart", Cart)
+  .use("/checkout", Sale)
 
 export default router;
