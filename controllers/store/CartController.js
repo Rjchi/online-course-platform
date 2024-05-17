@@ -75,6 +75,7 @@ export default {
                 discount: cupon.discount,
                 code_cupon: req.body.cupon,
                 type_discount: cupon.type_discount,
+                code_discount: null,
                 campaing_discount: null,
               }
             );
@@ -102,6 +103,7 @@ export default {
                 discount: cupon.discount,
                 code_cupon: req.body.cupon,
                 type_discount: cupon.type_discount,
+                code_discount: null,
                 campaing_discount: null,
               }
             );
