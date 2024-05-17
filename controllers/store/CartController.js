@@ -46,11 +46,11 @@ export default {
       let categories = [];
 
       cupon.categories.forEach((categorie) => {
-        categories.push(categorie._id);
+        categories.push(categorie);
       });
 
       cupon.courses.forEach((course) => {
-        courses.push(course._id);
+        courses.push(course);
       });
 
       for (let cart of carts) {
@@ -70,11 +70,12 @@ export default {
             await models.Cart.findByIdAndUpdate(
               { _id: cart._id },
               {
-                total,
-                subtotal,
+                total: total,
+                subtotal: subtotal,
                 discount: cupon.discount,
-                code_cupon: cupon.code_cupon,
+                code_cupon: req.body.cupon,
                 type_discount: cupon.type_discount,
+                campaing_discount: null,
               }
             );
           }
@@ -96,11 +97,12 @@ export default {
             await models.Cart.findByIdAndUpdate(
               { _id: cart._id },
               {
-                total,
-                subtotal,
+                total: total,
+                subtotal: subtotal,
                 discount: cupon.discount,
-                code_cupon: cupon.code_cupon,
+                code_cupon: req.body.cupon,
                 type_discount: cupon.type_discount,
+                campaing_discount: null,
               }
             );
           }
