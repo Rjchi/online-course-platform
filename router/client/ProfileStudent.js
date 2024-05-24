@@ -5,6 +5,6 @@ import profileStudentController from "../../controllers/client/ProfileStudentCon
 
 const router = routerx();
 
-router.get("/list", [auth.verifyTienda], profileStudentController.profileStudent);
+router.get("/client", [auth.verifyTienda], profileStudentController.profileStudent);
 
 export default router;
