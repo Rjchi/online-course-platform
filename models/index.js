@@ -9,7 +9,7 @@ import CourseClass from "./CourseClass";
 import CourseSection from "./CourseSection";
 import SaleDetail from "./store/SaleDetail";
 import CourseClassFile from "./CourseClassFile";
-import CourseStudent from "./store/CourseStudent";
+import CourseStudent from "./client/CourseStudent";
 
 export default {
   User,
