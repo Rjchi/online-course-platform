@@ -18,6 +18,11 @@ import Home from "./store/Home";
 import Cart from "./store/Cart";
 import Sale from "./store/Sale";
 
+/**------------
+ * | Cliente
+ * ------------*/
+import ProfileStudent from "./client/ProfileStudent";
+
 const router = routerx();
 
 router
@@ -32,5 +37,7 @@ router
   .use("/home", Home)
   .use("/cart", Cart)
   .use("/checkout", Sale)
+
+  .use("/profile", ProfileStudent);
 
 export default router;
