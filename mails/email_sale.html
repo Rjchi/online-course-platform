@@ -3,11 +3,64 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Email</title>
   </head>
   <body>
-    <header>HEADER</header>
-    <main>CONTENIDO DEL MENSAJE</main>
-    <footer>FOOTER</footer>
+    <main>
+      <div>
+        # <%= order._id %> <%= order.user.name + " " + order.user.surname %>
+      </div>
+      <div>
+        <% for (let i = 0; i < order_details.length; i++) { %>
+        <div>
+          <img src="<%= order_details[i].portada %>" alt="img" />
+          <p><%= order_details[i].course.title %></p>
+          <p><%= order_details[i].course.subtitle %></p>
+          <div>
+            <% if (order_details[i].code_cupon) { %>
+            <div>
+              <% if (order_details[i].type_discount === 1) { %>
+              <strong> Descuento: <%= order_details[i].discount %> % </strong>
+              <br />
+              <% } %> <% if (order_details[i].type_discount === 2) { %>
+              <strong> Descuento: <%= order_details[i].discount %> USD </strong>
+              <br />
+              <% } %>
+              <p>Cupón: <%= order_details[i].code_cupon %></p>
+              <br />
+            </div>
+            <% } %> <% if (order_details[i].code_discount) { %>
+            <div>
+              <% if (order_details[i].type_discount === 1) { %>
+              <strong> Descuento: <%= order_details[i].discount %> % </strong>
+              <br />
+              <% } %> <% if (order_details[i].type_discount === 2) { %>
+              <strong> Descuento: <%= order_details[i].discount %> USD </strong>
+              <br />
+              <% } %>
+              <p>C. Campaña: <%= order_details[i].code_discount %></p>
+              <br />
+              <% if (order_details[i].campaing_discount === 1) { %>
+              <strong> CAMPAÑA NORMAL </strong>
+              <br />
+              <% } %> <% if (order_details[i].campaing_discount === 2) { %>
+              <strong> CAMPAÑA FLASH </strong>
+              <br />
+              <% } %> <% if (order_details[i].campaing_discount === 3) { %>
+              <strong> CAMPAÑA BANNER </strong>
+              <br />
+              <% } %>
+            </div>
+            <% } %>
+          </div>
+          <h2>TOTAL: <%= order_details[i].total %></h2>
+        </div>
+        <% } %>
+      </div>
+      <div>
+        <p><%= order.method_payment %></p>
+        <h1><%= order.total %> USD</h1>
+      </div>
+    </main>
   </body>
 </html>
