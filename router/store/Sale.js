@@ -7,6 +7,5 @@ const router = routerx();
 
 router
   .post("/register", [auth.verifyTienda], SaleController.register)
-  .get("/send-email", [auth.verifyTienda], SaleController.send_mail)
 
 export default router;
