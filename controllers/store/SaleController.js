@@ -10,6 +10,10 @@ import smtpTransport from "nodemailer-smtp-transport";
 export default {
   send_mail: async (req, res) => {
     try {
+      /**-----------------------------------------
+       * | Aqui se lee el archivo HTML y luego lo
+       * | envia como respuesta
+       * -----------------------------------------*/
       var readHTMLFile = function (path, callback) {
         fs.readFile(path, { encoding: "utf-8" }, function (err, html) {
           if (err) {
@@ -21,6 +25,10 @@ export default {
         });
       };
 
+      /**------------------------------
+       * | Definimos el transportador
+       * | y nos utenticamos
+       * ------------------------------*/
       var transporter = nodemailer.createTransport(
         smtpTransport({
           service: "gmail",
@@ -33,15 +41,24 @@ export default {
       );
 
       readHTMLFile(process.cwd() + "/mails/email_sale.html", (err, html) => {
+        /**----------------------------------------------------
+         * | Aqui puedo indicar que atributos quiero utilizar
+         * | dentro de la plantilla ejs
+         * ----------------------------------------------------*/
         let rest_html = ejs.render(html, {});
 
+        /**---------------------------------------------------
+         * | Aqui compilamos el HTML para hacer el envio al
+         * | cliente
+         * ---------------------------------------------------*/
         var template = handlebars.compile(rest_html);
         var htmlToSend = template({ op: true });
 
         var mailOptions = {
           from: `${process.env.EMAIL}`,
-          to: email_cliente,
-          subject: "Finaliza tu compra " + orden._id,
+          to: "nullnone36@gmail.com",
+          // subject: "Finaliza tu compra " + orden._id,
+          subject: "Finaliza tu compra",
           html: htmlToSend,
         };
 
@@ -50,6 +67,10 @@ export default {
             console.log("Email sent: " + info.response);
           }
         });
+      });
+
+      return res.status(200).json({
+        message_text: "CORREO ENVIADO CORRECTAMENTE",
       });
     } catch (error) {
       console.log(error);
