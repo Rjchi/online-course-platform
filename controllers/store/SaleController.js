@@ -83,7 +83,8 @@ const send_mail = async (sale_id) => {
 
       var mailOptions = {
         from: `${process.env.EMAIL}`,
-        to: `${order.user.email}`,
+        // to: `${order.user.email}`,
+        to: `nullnone36@gmail.com`,
         subject: "Finaliza tu compra " + order._id,
         html: htmlToSend,
       };
@@ -95,14 +96,9 @@ const send_mail = async (sale_id) => {
       });
     });
 
-    return res.status(200).json({
-      message_text: "CORREO ENVIADO CORRECTAMENTE",
-    });
+    return;
   } catch (error) {
     console.log(error);
-    return res.status(500).json({
-      message: "OCURRIO UN ERROR",
-    });
   }
 };
 
