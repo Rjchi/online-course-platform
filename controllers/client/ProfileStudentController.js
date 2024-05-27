@@ -96,6 +96,31 @@ export default {
         });
       }
 
+      /**--------------------
+       * |Terminated Course
+       * --------------------*/
+
+      let terminated_courses = await models.CourseStudent.find({
+        user: user._id,
+        state: 2,
+      });
+
+      for (let t_course of terminated_courses) {
+        let course = await models.Course.findOne({
+          _id: t_course.course,
+        });
+        let Nclases = await numeroDeClases(course);
+
+        termined_course_news.push({
+          percentage: (
+            (t_course.clases_checked.length / Nclases) *
+            100
+          ).toFixed(2), // redondeo de dos decimales
+          clases_checked: t_course.clases_checked,
+          course: apiResource.Course.apiResourceCourse(course, null, Nclases),
+        });
+      }
+
       return (
         res.status(200),
         json({
@@ -116,8 +141,8 @@ export default {
                 student.avatar
               : null,
           },
-          actived_course_news: [],
-          termined_course_news: [],
+          actived_course_news: actived_course_news,
+          termined_course_news: termined_course_news,
           enrolled_course_news: enrolled_course_news,
         })
       );
