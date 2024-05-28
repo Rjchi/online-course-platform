@@ -123,6 +123,62 @@ export default {
         });
       }
 
+      /**------------------------------------------
+       * | Compras relacionadas con el estudiante
+       * ------------------------------------------*/
+      let sales = await models.Sale.find({ user: user._id });
+      let salesCollections = [];
+
+      for (let sale of sales) {
+        sale = sale.toObject();
+
+        let saleDetails = await models.SaleDetail.find({
+          sale: sale._id,
+        }).populate({
+          path: "course",
+          populate: {
+            path: "categorie",
+          },
+        });
+
+        let sales_detail_collection = [];
+
+        for (let sale_d of saleDetails) {
+          sale_d = sale_d.toObject();
+
+          sales_detail_collection.push({
+            total: sale_d.total,
+            course: {
+              _id: sale_d.course._id,
+              title: sale_d.course.title,
+              image: sale_d.course.image
+                ? process.env.URL_BACKEND +
+                  "/api/auth/imagen-usuario/" +
+                  sale_d.course.image
+                : null,
+              categorie: sale_d.course.categorie,
+            },
+            discount: sale_d.discount,
+            subtotal: sale_d.subtotal,
+            price_unit: sale_d.price_unit,
+            code_cupon: sale_d.code_cupon,
+            type_discount: sale_d.type_discount,
+            code_discount: sale_d.code_discount,
+            campaing_discount: sale_d.campaing_discount,
+          });
+        }
+
+        salesCollections.push({
+          total: sale.total,
+          price_dolar: sale.price_dolar,
+          n_transaction: sale.n_transaction,
+          currency_total: sale.currency_total,
+          method_payment: sale.method_payment,
+          currency_payment: sale.currency_payment,
+          sale_details: sales_detail_collection,
+        });
+      }
+
       return res.status(200).json({
         enrolled_course_count,
         termined_course_count,
@@ -144,6 +200,7 @@ export default {
         actived_course_news: actived_course_news,
         termined_course_news: termined_course_news,
         enrolled_course_news: enrolled_course_news,
+        sales: salesCollections,
       });
     } catch (error) {
       return res.status(500).send({
