@@ -169,6 +169,7 @@ export default {
         }
 
         salesCollections.push({
+          _id: sale._id,
           total: sale.total,
           price_dolar: sale.price_dolar,
           n_transaction: sale.n_transaction,
