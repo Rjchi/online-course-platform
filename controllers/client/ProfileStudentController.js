@@ -175,6 +175,7 @@ export default {
           currency_total: sale.currency_total,
           method_payment: sale.method_payment,
           currency_payment: sale.currency_payment,
+          date: sale.createdAt,
           sale_details: sales_detail_collection,
         });
       }
