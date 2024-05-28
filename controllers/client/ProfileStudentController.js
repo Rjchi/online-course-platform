@@ -145,8 +145,7 @@ export default {
       });
     } catch (error) {
       return res.status(500).send({
-        // message_text: "OCURRIO UN ERROR",
-        message_text: error.message,
+        message_text: "OCURRIO UN ERROR",
       });
     }
   },
