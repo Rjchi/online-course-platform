@@ -1,6 +1,6 @@
 import models from "../../models";
 import apiResource from "../../resource";
-import { decode } from "../../service/token";
+import token from "../../service/token";
 
 const numeroDeClases = async (course) => {
   let n_clases = 0;
@@ -20,15 +20,15 @@ const numeroDeClases = async (course) => {
 export default {
   profileStudent: async (req, res) => {
     try {
-      let user = await decode(req.headers.token);
+      let user = await token.decode(req.headers.token);
 
-      let enrolled_course_count = await models.CourseStudent.count({
+      let enrolled_course_count = await models.CourseStudent.countDocuments({
         user: user._id,
       });
       /**-----------------------------------------------------
        * | Cursos en los que se haya visto minimo una clase
        * -----------------------------------------------------*/
-      let activated_course_count = await models.CourseStudent.count({
+      let activated_course_count = await models.CourseStudent.countDocuments({
         user: user._id,
         clases_checked: {
           $ne: [], // diferente a vacio
@@ -36,7 +36,7 @@ export default {
         state: 1,
       });
 
-      let termined_course_count = await models.CourseStudent.count({
+      let termined_course_count = await models.CourseStudent.countDocuments({
         user: user._id,
         state: 2,
       });
@@ -121,34 +121,32 @@ export default {
         });
       }
 
-      return (
-        res.status(200),
-        json({
-          enrolled_course_count,
-          termined_course_count,
-          activated_course_count,
-          profile: {
-            name: student.name,
-            email: student.email,
-            phone: student.phone,
-            surname: student.surname,
-            birthday: student.birthday,
-            profession: student.profession,
-            description: student.description,
-            avatar: student.avatar
-              ? process.env.URL_BACKEND +
-                "/api/auth/imagen-usuario/" +
-                student.avatar
-              : null,
-          },
-          actived_course_news: actived_course_news,
-          termined_course_news: termined_course_news,
-          enrolled_course_news: enrolled_course_news,
-        })
-      );
+      return res.status(200).json({
+        enrolled_course_count,
+        termined_course_count,
+        activated_course_count,
+        profile: {
+          name: student.name,
+          email: student.email,
+          phone: student.phone,
+          surname: student.surname,
+          birthday: student.birthday,
+          profession: student.profession,
+          description: student.description,
+          avatar: student.avatar
+            ? process.env.URL_BACKEND +
+              "/api/auth/imagen-usuario/" +
+              student.avatar
+            : null,
+        },
+        actived_course_news: actived_course_news,
+        termined_course_news: termined_course_news,
+        enrolled_course_news: enrolled_course_news,
+      });
     } catch (error) {
       return res.status(500).send({
-        message_text: "OCURRIO UN ERROR",
+        // message_text: "OCURRIO UN ERROR",
+        message_text: error.message,
       });
     }
   },
