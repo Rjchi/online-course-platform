@@ -210,4 +210,44 @@ export default {
       });
     }
   },
+  updateStudent: async (req, res) => {
+    try {
+      const user = await token.decode(req.headers.token);
+
+      const VALID_USER = await models.User.findOne({
+        email: req.body.email,
+        _id: { $ne: user._id },
+      });
+
+      if (VALID_USER)
+        return res
+          .status(200)
+          .json({ message: 403, msg: "EL USUARIO INGRESADO YA EXISTE" });
+
+      if (req.body.password) {
+        req.body.password = await bcrypt.hash(req.body.password, 10);
+      }
+
+      if (req.files && req.files.avatar) {
+        const img_path = req.files.avatar.path;
+        const avatar_name = img_path.split("\\")[2];
+
+        req.body.avatar = avatar_name;
+      }
+
+      await models.User.findByIdAndUpdate({ _id: req.body._id }, req.body);
+
+      const NUser = await models.User.findById({ _id: req.body._id });
+
+      return res.status(200).json({
+        msg: "EL USUARIO SE EDITO CORRECTAMENTE",
+        user: resource.User.apiResourceUser(NUser),
+      });
+    } catch (error) {
+      console.log(error.message);
+      return res.status(500).send({
+        msg: "OCURRIO UN PROBLEMA",
+      });
+    }
+  },
 };
