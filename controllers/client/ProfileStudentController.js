@@ -55,7 +55,9 @@ export default {
       });
 
       for (let e_course of enrolled_course) {
-        let course = await models.Course.findOne({ _id: e_course.course });
+        let course = await models.Course.findOne({
+          _id: e_course.course,
+        }).populate(["categorie", "user"]);
         let Nclases = await numeroDeClases(course);
 
         enrolled_course_news.push({
@@ -83,7 +85,7 @@ export default {
       for (let a_course of actived_courses) {
         let course = await models.Course.findOne({
           _id: a_course.course,
-        });
+        }).populate(["categorie", "user"]);
         let Nclases = await numeroDeClases(course);
 
         actived_course_news.push({
@@ -108,7 +110,7 @@ export default {
       for (let t_course of terminated_courses) {
         let course = await models.Course.findOne({
           _id: t_course.course,
-        });
+        }).populate(["categorie", "user"]);
         let Nclases = await numeroDeClases(course);
 
         termined_course_news.push({
