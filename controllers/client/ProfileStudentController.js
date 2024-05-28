@@ -241,7 +241,7 @@ export default {
 
       return res.status(200).json({
         msg: "EL USUARIO SE EDITO CORRECTAMENTE",
-        user: resource.User.apiResourceUser(NUser),
+        user: apiResource.User.apiResourceUser(NUser),
       });
     } catch (error) {
       console.log(error.message);
