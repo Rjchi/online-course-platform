@@ -1,6 +1,8 @@
 import models from "../../models";
-import apiResource from "../../resource";
 import token from "../../service/token";
+import apiResource from "../../resource";
+
+import bcrypt from "bcryptjs";
 
 const numeroDeClases = async (course) => {
   let n_clases = 0;
