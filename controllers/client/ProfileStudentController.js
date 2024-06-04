@@ -252,4 +252,35 @@ export default {
       });
     }
   },
+  reviewUpdate: async (req, res) => {
+    try {
+      await models.Review.findByIdAndUpdate({ _id: req.body._id }, req.body)
+
+      let review = await models.Review.findById({ _id: req.body._id });
+
+      return res.status(200).json({
+        message_text: "LA RESEÑA SE HA ACTUALIZADO CORRECTAMENTE",
+        review: review,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({ message_text: "OCURRIO UN ERROR" });
+    }
+  },
+  reviewRegister: async (req, res) => {
+    try {
+      let user = await token.decode(req.headers.token);
+
+      req.body.user = user._id;
+      let review = await models.Review.create(req.body);
+
+      return res.status(200).json({
+        message_text: "LA RESEÑA SE HA REGISTRADO CORRECTAMENTE",
+        review: review,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({ message_text: "OCURRIO UN ERROR" });
+    }
+  },
 };
