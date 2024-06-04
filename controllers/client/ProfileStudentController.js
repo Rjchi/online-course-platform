@@ -235,9 +235,9 @@ export default {
         req.body.avatar = avatar_name;
       }
 
-      await models.User.findByIdAndUpdate({ _id: req.body._id }, req.body);
+      await models.User.findByIdAndUpdate({ _id: user._id }, req.body);
 
-      const NUser = await models.User.findById({ _id: req.body._id });
+      const NUser = await models.User.findById({ _id: user._id });
 
       return res.status(200).json({
         msg: "EL USUARIO SE EDITO CORRECTAMENTE",
