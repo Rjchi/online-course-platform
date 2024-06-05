@@ -171,6 +171,7 @@ export default {
           });
 
           salesDetailsCollections.push({
+            _id: sale_d._id,
             total: sale_d.total,
             course: {
               _id: sale_d.course._id,
