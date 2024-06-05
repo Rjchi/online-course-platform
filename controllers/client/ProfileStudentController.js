@@ -130,6 +130,7 @@ export default {
        * ------------------------------------------*/
       let sales = await models.Sale.find({ user: user._id });
       let salesCollections = [];
+      let salesDetailsCollections = [];
 
       for (let sale of sales) {
         sale = sale.toObject();
@@ -149,6 +150,27 @@ export default {
           sale_d = sale_d.toObject();
 
           sales_detail_collection.push({
+            total: sale_d.total,
+            course: {
+              _id: sale_d.course._id,
+              title: sale_d.course.title,
+              image: sale_d.course.image
+                ? process.env.URL_BACKEND +
+                  "/api/auth/imagen-usuario/" +
+                  sale_d.course.image
+                : null,
+              categorie: sale_d.course.categorie,
+            },
+            discount: sale_d.discount,
+            subtotal: sale_d.subtotal,
+            price_unit: sale_d.price_unit,
+            code_cupon: sale_d.code_cupon,
+            type_discount: sale_d.type_discount,
+            code_discount: sale_d.code_discount,
+            campaing_discount: sale_d.campaing_discount,
+          });
+
+          salesDetailsCollections.push({
             total: sale_d.total,
             course: {
               _id: sale_d.course._id,
@@ -201,10 +223,11 @@ export default {
               student.avatar
             : null,
         },
+        sales: salesCollections,
+        sales_details: salesDetailsCollections,
         actived_course_news: actived_course_news,
         termined_course_news: termined_course_news,
         enrolled_course_news: enrolled_course_news,
-        sales: salesCollections,
       });
     } catch (error) {
       return res.status(500).send({
