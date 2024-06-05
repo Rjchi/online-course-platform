@@ -170,7 +170,10 @@ export default {
             campaing_discount: sale_d.campaing_discount,
           });
 
+          let review = await models.Review.findOne({ sale_detail: sale_d._id });
+
           salesDetailsCollections.push({
+            review: review,
             _id: sale_d._id,
             total: sale_d.total,
             course: {
@@ -278,7 +281,7 @@ export default {
   },
   reviewUpdate: async (req, res) => {
     try {
-      await models.Review.findByIdAndUpdate({ _id: req.body._id }, req.body)
+      await models.Review.findByIdAndUpdate({ _id: req.body._id }, req.body);
 
       let review = await models.Review.findById({ _id: req.body._id });
 
