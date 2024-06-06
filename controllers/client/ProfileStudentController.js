@@ -1,6 +1,8 @@
 import models from "../../models";
-import apiResource from "../../resource";
 import token from "../../service/token";
+import apiResource from "../../resource";
+
+import bcrypt from "bcryptjs";
 
 const numeroDeClases = async (course) => {
   let n_clases = 0;
@@ -128,6 +130,7 @@ export default {
        * ------------------------------------------*/
       let sales = await models.Sale.find({ user: user._id });
       let salesCollections = [];
+      let salesDetailsCollections = [];
 
       for (let sale of sales) {
         sale = sale.toObject();
@@ -147,6 +150,31 @@ export default {
           sale_d = sale_d.toObject();
 
           sales_detail_collection.push({
+            total: sale_d.total,
+            course: {
+              _id: sale_d.course._id,
+              title: sale_d.course.title,
+              image: sale_d.course.image
+                ? process.env.URL_BACKEND +
+                  "/api/auth/imagen-usuario/" +
+                  sale_d.course.image
+                : null,
+              categorie: sale_d.course.categorie,
+            },
+            discount: sale_d.discount,
+            subtotal: sale_d.subtotal,
+            price_unit: sale_d.price_unit,
+            code_cupon: sale_d.code_cupon,
+            type_discount: sale_d.type_discount,
+            code_discount: sale_d.code_discount,
+            campaing_discount: sale_d.campaing_discount,
+          });
+
+          let review = await models.Review.findOne({ sale_detail: sale_d._id });
+
+          salesDetailsCollections.push({
+            review: review,
+            _id: sale_d._id,
             total: sale_d.total,
             course: {
               _id: sale_d.course._id,
@@ -199,10 +227,11 @@ export default {
               student.avatar
             : null,
         },
+        sales: salesCollections,
+        sales_details: salesDetailsCollections,
         actived_course_news: actived_course_news,
         termined_course_news: termined_course_news,
         enrolled_course_news: enrolled_course_news,
-        sales: salesCollections,
       });
     } catch (error) {
       return res.status(500).send({
@@ -235,9 +264,9 @@ export default {
         req.body.avatar = avatar_name;
       }
 
-      await models.User.findByIdAndUpdate({ _id: req.body._id }, req.body);
+      await models.User.findByIdAndUpdate({ _id: user._id }, req.body);
 
-      const NUser = await models.User.findById({ _id: req.body._id });
+      const NUser = await models.User.findById({ _id: user._id });
 
       return res.status(200).json({
         msg: "EL USUARIO SE EDITO CORRECTAMENTE",
@@ -248,6 +277,37 @@ export default {
       return res.status(500).send({
         msg: "OCURRIO UN PROBLEMA",
       });
+    }
+  },
+  reviewUpdate: async (req, res) => {
+    try {
+      await models.Review.findByIdAndUpdate({ _id: req.body._id }, req.body);
+
+      let review = await models.Review.findById({ _id: req.body._id });
+
+      return res.status(200).json({
+        message_text: "LA RESEÑA SE HA ACTUALIZADO CORRECTAMENTE",
+        review: review,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({ message_text: "OCURRIO UN ERROR" });
+    }
+  },
+  reviewRegister: async (req, res) => {
+    try {
+      let user = await token.decode(req.headers.token);
+
+      req.body.user = user._id;
+      let review = await models.Review.create(req.body);
+
+      return res.status(200).json({
+        message_text: "LA RESEÑA SE HA REGISTRADO CORRECTAMENTE",
+        review: review,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({ message_text: "OCURRIO UN ERROR" });
     }
   },
 };

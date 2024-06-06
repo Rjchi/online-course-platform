@@ -10,6 +10,20 @@ const router = routerx();
 
 router
   .get("/client", [auth.verifyTienda], profileStudentController.profileStudent)
-  .put("/update", [auth.verifyTienda, path], profileStudentController.updateStudent);
+  .put(
+    "/update",
+    [auth.verifyTienda, path],
+    profileStudentController.updateStudent
+  )
+  .put(
+    "/review-update",
+    [auth.verifyTienda],
+    profileStudentController.reviewUpdate
+  )
+  .post(
+    "/review-register",
+    [auth.verifyTienda],
+    profileStudentController.reviewRegister
+  );
 
 export default router;
