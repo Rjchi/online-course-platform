@@ -645,6 +645,8 @@ export default {
   },
   configAll: async (req, res) => {
     try {
+      let nLevels = [];
+      let nIdiomas = [];
       let nCategories = [];
       let nInstructors = [];
 
@@ -655,8 +657,17 @@ export default {
       const categories = await models.Categorie.find({
         state: 1,
       });
-      const levels = ["Basico", "Intermedio", "Avanzado"];
-      const idiomas = ["Ingles", "Español", "Portugues", "Aleman"];
+      const levels = [
+        { name: "Basico" },
+        { name: "Intermedio" },
+        { name: "Avanzado" },
+      ];
+      const idiomas = [
+        { name: "Ingles" },
+        { name: "Español" },
+        { name: "Portugues" },
+        { name: "Aleman" },
+      ];
 
       /**-----------------------------------------
        * | Numero de cursos para una categoria
@@ -682,9 +693,31 @@ export default {
         nInstructors.push(instructor);
       }
 
+      /**-----------------------------------------
+       * | Numero de cursos para un nivel
+       * -----------------------------------------*/
+      for (let level of levels) {
+        level.count_courses = await models.Course.countDocuments({
+          level: level.name,
+        });
+
+        nLevels.push(level);
+      }
+
+      /**-----------------------------------------
+       * | Numero de cursos para un idioma
+       * -----------------------------------------*/
+      for (let idioma of idiomas) {
+        idioma.count_courses = await models.Course.countDocuments({
+          idioma: idioma.name,
+        });
+
+        nIdiomas.push(idioma);
+      }
+
       return res.status(200).json({
-        levels,
-        idiomas,
+        levels: nLevels,
+        idiomas: nIdiomas,
         categories: nCategories,
         instructores: nInstructors,
       });
