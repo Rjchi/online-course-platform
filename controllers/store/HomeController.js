@@ -646,6 +646,7 @@ export default {
   configAll: async (req, res) => {
     try {
       let nCategories = [];
+      let nInstructors = [];
 
       const instructores = await models.User.find({
         rol: "instructor",
@@ -657,6 +658,9 @@ export default {
       const levels = ["Basico", "Intermedio", "Avanzado"];
       const idiomas = ["Ingles", "Español", "Portugues", "Aleman"];
 
+      /**-----------------------------------------
+       * | Numero de cursos para una categoria
+       * -----------------------------------------*/
       for (let categorie of categories) {
         categorie = categorie.toObject();
         categorie.count_courses = await models.Course.countDocuments({
@@ -666,11 +670,23 @@ export default {
         nCategories.push(categorie);
       }
 
+      /**-----------------------------------------
+       * | Numero de cursos para un instructor
+       * -----------------------------------------*/
+      for (let instructor of instructores) {
+        instructor = instructor.toObject();
+        instructor.count_courses = await models.Course.countDocuments({
+          user: instructor._id,
+        });
+
+        nInstructors.push(instructor);
+      }
+
       return res.status(200).json({
         levels,
         idiomas,
         categories: nCategories,
-        instructores,
+        instructores: nInstructors,
       });
     } catch (error) {
       console.log(error);
