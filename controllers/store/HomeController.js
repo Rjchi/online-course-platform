@@ -580,4 +580,67 @@ export default {
       });
     }
   },
+  search_course: async (req, res) => {
+    try {
+      let time_now = req.query.time_now;
+      const searchCourse = req.body.search;
+
+      let campaing_home = await models.Discount.findOne({
+        type_campaing: 1,
+        start_date_num: { $lte: time_now }, // time_now >= start_date_num
+        end_date_num: { $gte: time_now }, // time_now <= end_date_num
+      });
+
+      const courses = await models.Course.aggregate([
+        { $match: { state: 2, title: new RegExp(searchCourse, "i") } },
+      ]);
+
+      let listCourses = [];
+
+      for (let course of courses) {
+        let DISCONT_G = null;
+
+        if (campaing_home) {
+          // 1 cursos
+          if (campaing_home.type_segment === 1) {
+            let courses_a = [];
+
+            campaing_home.courses.forEach((course) => {
+              courses_a.push(course);
+            });
+
+            if (courses_a.includes(course._id + "")) {
+              DISCONT_G = campaing_home;
+            }
+          }
+          // 2 categorias
+          if (campaing_home.type_segment === 2) {
+            let categories_a = [];
+
+            campaing_home.categories.forEach((categorie) => {
+              categories_a.push(categorie._id);
+            });
+
+            if (categories_a.includes(course.categorie + "")) {
+              DISCONT_G = campaing_home;
+            }
+          }
+        }
+        let n_clases = await numeroDeClases(course);
+
+        listCourses.push(
+          apiResource.Course.apiResourceCourse(course, DISCONT_G, n_clases)
+        );
+      }
+
+      return res.status(200).json({
+        courses: listCourses,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        message_text: "OCURRIO UN ERROR",
+      });
+    }
+  },
 };
