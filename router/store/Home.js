@@ -5,6 +5,7 @@ const router = routerx();
 
 router
   .get("/list", homeController.list)
+  .get("/config-all", homeController.configAll)
   .post("/search-course", homeController.search_course)
   .get("/imagen-usuario/:img", homeController.getImage)
   .get("/landig-course/:slug", homeController.showCourse)
