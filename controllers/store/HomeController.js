@@ -643,4 +643,29 @@ export default {
       });
     }
   },
+  configAll: async (req, res) => {
+    try {
+      const instructores = await models.User.find({
+        rol: "instructor",
+        state: 1,
+      });
+      const categories = await models.Categorie.find({
+        state: 1,
+      });
+      const levels = ["Basico", "Intermedio", "Avanzado"];
+      const idiomas = ["Ingles", "Español", "Portugues", "Aleman"];
+
+      return res.status(200).json({
+        levels,
+        idiomas,
+        categories,
+        instructores,
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
+        message_text: "OCURRIO UN ERROR",
+      });
+    }
+  },
 };
