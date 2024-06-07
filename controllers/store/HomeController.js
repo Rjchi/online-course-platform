@@ -586,6 +586,7 @@ export default {
       let time_now = req.query.time_now;
       let searchCourse = req.body.search;
       let select_categories = req.body.select_categories;
+      let select_instructors = req.body.select_instructors;
 
       let campaing_home = await models.Discount.findOne({
         type_campaing: 1,
@@ -595,6 +596,10 @@ export default {
 
       if (select_categories) {
         select_categories = select_categories.map((str) => new ObjectId(str));
+      }
+
+      if (select_instructors) {
+        select_instructors = select_instructors.map((str) => new ObjectId(str));
       }
 
       let filters = [
@@ -612,6 +617,12 @@ export default {
       if (select_categories && select_categories.length > 0) {
         filters.push({
           $match: { categorie: { $in: select_categories } },
+        });
+      }
+
+      if (select_instructors && select_instructors.length > 0) {
+        filters.push({
+          $match: { user: { $in: select_instructors } },
         });
       }
 
