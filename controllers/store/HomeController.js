@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { ObjectId } from "mongodb";
 import models from "../../models";
 import apiResource from "../../resource";
 
@@ -583,7 +584,8 @@ export default {
   search_course: async (req, res) => {
     try {
       let time_now = req.query.time_now;
-      const searchCourse = req.body.search;
+      let searchCourse = req.body.search;
+      let select_categories = req.body.select_categories;
 
       let campaing_home = await models.Discount.findOne({
         type_campaing: 1,
@@ -591,8 +593,29 @@ export default {
         end_date_num: { $gte: time_now }, // time_now <= end_date_num
       });
 
-      const courses = await models.Course.aggregate([
-        { $match: { state: 2, title: new RegExp(searchCourse, "i") } },
+      if (select_categories) {
+        select_categories = select_categories.map((str) => new ObjectId(str));
+      }
+
+      let filters = [
+        {
+          $match: { state: 2 },
+        },
+      ];
+
+      if (searchCourse) {
+        filters.push({
+          $match: { title: new RegExp(searchCourse, "i") },
+        });
+      }
+
+      if (select_categories && select_categories.length > 0) {
+        filters.push({
+          $match: { categorie: { $in: select_categories } },
+        });
+      }
+
+      filters.push(
         {
           $lookup: {
             from: "users", // nombre (en la base de datos) de la coleccion de la que viene la relación
@@ -602,9 +625,11 @@ export default {
           },
         },
         {
-          $unwind: "$user", // nombre que tiene la relación
-        },
-      ]);
+          $unwind: "$user",
+        }
+      );
+
+      const courses = await models.Course.aggregate(filters);
 
       let listCourses = [];
 
