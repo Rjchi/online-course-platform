@@ -585,6 +585,8 @@ export default {
     try {
       let time_now = req.query.time_now;
       let searchCourse = req.body.search;
+      let select_levels = req.body.select_levels;
+      let select_idiomas = req.body.select_idiomas;
       let select_categories = req.body.select_categories;
       let select_instructors = req.body.select_instructors;
 
@@ -623,6 +625,12 @@ export default {
       if (select_instructors && select_instructors.length > 0) {
         filters.push({
           $match: { user: { $in: select_instructors } },
+        });
+      }
+
+      if (select_levels && select_levels.length > 0) {
+        filters.push({
+          $match: { level: { $in: select_levels } },
         });
       }
 
