@@ -584,6 +584,8 @@ export default {
   search_course: async (req, res) => {
     try {
       let time_now = req.query.time_now;
+      let min_price = req.body.min_price;
+      let max_price = req.body.max_price;
       let searchCourse = req.body.search;
       let select_levels = req.body.select_levels;
       let select_idiomas = req.body.select_idiomas;
@@ -637,6 +639,12 @@ export default {
       if (select_idiomas && select_idiomas.length > 0) {
         filters.push({
           $match: { idioma: { $in: select_idiomas } },
+        });
+      }
+
+      if (min_price > 0 && max_price > 0) {
+        filters.push({
+          $match: { price_usd: { $gte: min_price, $lte: max_price } },
         });
       }
 
