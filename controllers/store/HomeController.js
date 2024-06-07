@@ -589,6 +589,7 @@ export default {
       let searchCourse = req.body.search;
       let select_levels = req.body.select_levels;
       let select_idiomas = req.body.select_idiomas;
+      let rating_selected = req.body.rating_selected;
       let select_categories = req.body.select_categories;
       let select_instructors = req.body.select_instructors;
 
@@ -661,6 +662,55 @@ export default {
           $unwind: "$user",
         }
       );
+
+      if (rating_selected && rating_selected > 0) {
+        filters.push(
+          /**---------------------------------------------
+           * | Relación indirecta con el modelo review
+           * | ya que es en el modelo review donde esta la
+           * | relación con curso
+           * ---------------------------------------------*/
+          {
+            $lookup: {
+              from: "reviews",
+              localField: "_id",
+              foreignField: "course",
+              as: "reviews",
+            },
+          },
+          {
+            $unwind: "$reviews",
+          },
+          /**------------------------------------------------
+           * | Con esto agregamos un nuevo campo dentro del
+           * | modelo curso
+           * ------------------------------------------------*/
+          {
+            $addFields: {
+              avgRating: {
+                /**-------------------------------------------
+                 * | Calculo del promedio del campo rating
+                 * | para cada curso
+                 * -------------------------------------------*/
+                $avg: "$reviews.rating",
+              },
+            },
+          },
+          /**-----------------------------------------------------
+           * | Aqui filtramos el rating que ingrese el usuario
+           * | ejem: si el usuario ingresa 3 se filtraran entre
+           * | 2 y 3 (siempre restando uno)
+           * -----------------------------------------------------*/
+          {
+            $match: {
+              avgRating: {
+                $gt: rating_selected - 1, // mayor a
+                $lte: rating_selected, // menor o igual a
+              },
+            },
+          }
+        );
+      }
 
       const courses = await models.Course.aggregate(filters);
 
