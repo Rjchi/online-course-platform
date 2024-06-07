@@ -634,6 +634,12 @@ export default {
         });
       }
 
+      if (select_idiomas && select_idiomas.length > 0) {
+        filters.push({
+          $match: { idioma: { $in: select_idiomas } },
+        });
+      }
+
       filters.push(
         {
           $lookup: {
