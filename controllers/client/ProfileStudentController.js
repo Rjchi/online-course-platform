@@ -310,4 +310,41 @@ export default {
       return res.status(500).send({ message_text: "OCURRIO UN ERROR" });
     }
   },
+  courseLeason: async (req, res) => {
+    try {
+      const slug = req.params.slug;
+      const user = await token.decode(req.headers.token);
+
+      const course = await models.Course.findOne({ slug });
+
+      if (!course) {
+        return res
+          .status(200)
+          .json({ message: 403, message_text: "EL CURSO NO EXISTE" });
+      }
+
+      const courseStudent = await models.CourseStudent.findOne({
+        course: course._id,
+        user: user._id,
+      });
+
+      if (!courseStudent) {
+        return res
+          .status(200)
+          .json({
+            message: 403,
+            message_text: "TU NO ESTAS INSCRITO EN ESTE CURSO",
+          });
+      }
+
+      return res.status(200).json({
+        course: apiResource.Course.apiResourceCourseLanding(course, null, []),
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).send({
+        message_text: "OCURRIO UN ERROR",
+      });
+    }
+  },
 };
