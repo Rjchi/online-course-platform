@@ -345,7 +345,7 @@ export default {
       const courseStudent = await models.CourseStudent.findOne({
         course: course._id,
         user: user._id,
-      });
+      }).populate("user");
 
       if (!courseStudent) {
         return res.status(200).json({
@@ -458,12 +458,32 @@ export default {
           count_course_instructor,
           nStudents,
           avgRating,
-          nReviews,
+          nReviews
         ),
+        course_student: courseStudent,
       });
     } catch (error) {
       console.log(error);
       return res.status(500).send({
+        message_text: "OCURRIO UN ERROR",
+      });
+    }
+  },
+  courseStudent: async (req, res) => {
+    try {
+      const courseStudentId = req.body._id;
+
+      await models.CourseStudent.findByIdAndUpdate(
+        { _id: courseStudentId },
+        { clases_checked: req.body.clases_checked }
+      );
+
+      return res.status(200).json({
+        message_text: "SE GUARDO LA SELECCIÓN DE LA CLASE",
+      });
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({
         message_text: "OCURRIO UN ERROR",
       });
     }
