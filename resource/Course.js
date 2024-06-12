@@ -47,7 +47,9 @@ export default {
     time_total_course = 0,
     files_total_sections = 0,
     count_course_instructor = 0,
-    n_students = 0
+    n_students = 0,
+    avg_rating = 0,
+    n_reviews = 0
   ) => {
     return {
       _id: course._id,
@@ -95,6 +97,8 @@ export default {
         .toString()
         .replace(/\S+\s(\S+)\s(\d+)\s(\d+)\s.*/, "$1 $2,$3"),
       n_students: n_students,
+      avg_rating: avg_rating,
+      n_reviews: n_reviews,
     };
   },
 };
