@@ -429,6 +429,10 @@ export default {
         state: 2,
       });
 
+      const nStudents = await models.CourseStudent.countDocuments({
+        course: course._id,
+      });
+
       return res.status(200).json({
         course: apiResource.Course.apiResourceCourseLanding(
           course,
@@ -436,7 +440,8 @@ export default {
           mallaCurricular,
           timeTotalCourse,
           filesTotalSections,
-          count_course_instructor
+          count_course_instructor,
+          nStudents
         ),
       });
     } catch (error) {
