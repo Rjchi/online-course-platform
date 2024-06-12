@@ -331,7 +331,10 @@ export default {
       const slug = req.params.slug;
       const user = await token.decode(req.headers.token);
 
-      const course = await models.Course.findOne({ slug });
+      const course = await models.Course.findOne({ slug }).populate([
+        "user",
+        "categorie",
+      ]);
 
       if (!course) {
         return res
@@ -352,6 +355,7 @@ export default {
       }
 
       let sections = await models.CourseSection.find({ course: course._id });
+      let mallaCurricular = [];
       let timeTotalSections = [];
       let filesTotalSections = 0;
 
