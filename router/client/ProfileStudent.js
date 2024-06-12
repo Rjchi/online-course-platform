@@ -20,6 +20,11 @@ router
     [auth.verifyTienda, path],
     profileStudentController.updateStudent
   )
+  .post(
+    "/course-student",
+    [auth.verifyTienda, path],
+    profileStudentController.courseStudent
+  )
   .put(
     "/review-update",
     [auth.verifyTienda],
