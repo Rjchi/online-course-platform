@@ -46,7 +46,8 @@ export default {
     malla_curricular = [],
     time_total_course = 0,
     files_total_sections = 0,
-    count_course_instructor = 0
+    count_course_instructor = 0,
+    n_students = 0
   ) => {
     return {
       _id: course._id,
@@ -93,6 +94,7 @@ export default {
       updatedAt: new Date(course.updatedAt)
         .toString()
         .replace(/\S+\s(\S+)\s(\d+)\s(\d+)\s.*/, "$1 $2,$3"),
+      n_students: n_students,
     };
   },
 };
