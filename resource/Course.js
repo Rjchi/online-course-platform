@@ -46,7 +46,7 @@ export default {
     malla_curricular = [],
     time_total_course = 0,
     files_total_sections = 0,
-    count_course_instructor = 0,
+    count_course_instructor = 0
   ) => {
     return {
       _id: course._id,
@@ -90,6 +90,9 @@ export default {
       malla_curricular: malla_curricular,
       time_parse: time_total_course,
       files_count: files_total_sections,
+      updatedAt: new Date(course.updatedAt)
+        .toString()
+        .replace(/\S+\s(\S+)\s(\d+)\s(\d+)\s.*/, "$1 $2,$3"),
     };
   },
 };
