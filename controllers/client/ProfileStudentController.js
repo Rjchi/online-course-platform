@@ -433,6 +433,21 @@ export default {
         course: course._id,
       });
 
+      const reviews = await models.Review.find({ course: course._id });
+
+      /**---------------------------------
+       * | Promedio ponderado del curso
+       * ---------------------------------*/
+      const avgRating =
+        reviews.length > 0
+          ? (
+              reviews.reduce((sum, review) => sum + review.rating, 0) /
+              reviews.length
+            ).toFixed(2)
+          : 0;
+
+      const nReviews = reviews.length;
+
       return res.status(200).json({
         course: apiResource.Course.apiResourceCourseLanding(
           course,
@@ -441,7 +456,9 @@ export default {
           timeTotalCourse,
           filesTotalSections,
           count_course_instructor,
-          nStudents
+          nStudents,
+          avgRating,
+          nReviews,
         ),
       });
     } catch (error) {
