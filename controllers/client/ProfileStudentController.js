@@ -446,10 +446,8 @@ export default {
 
         let avgRating_c =
           reviews_c.length > 0
-            ? (
-                reviews_c.reduce((sum, review) => sum + review.rating, 0) /
-                reviews_c.length
-              ).toFixed(2)
+            ? reviews_c.reduce((sum, review) => sum + review.rating, 0) /
+              reviews_c.length
             : 0;
 
         let nReviews_c = reviews_c.length;
@@ -459,7 +457,9 @@ export default {
         avgRating_sum_total += avgRating_c;
       }
 
-      avgRating_instructor = (avgRating_sum_total / nReviews_sum_total).toFixed(2);
+      avgRating_instructor = (avgRating_sum_total / nReviews_sum_total).toFixed(
+        2
+      );
 
       let nStudents = await models.CourseStudent.countDocuments({
         course: course._id,
@@ -493,7 +493,7 @@ export default {
           nReviews,
           nStudents_sum_total,
           nReviews_sum_total,
-          avgRating_instructor,
+          avgRating_instructor
         ),
         course_student: courseStudent,
       });
