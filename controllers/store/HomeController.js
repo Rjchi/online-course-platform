@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { ObjectId } from "mongodb";
 import models from "../../models";
 import apiResource from "../../resource";
 
@@ -583,7 +584,14 @@ export default {
   search_course: async (req, res) => {
     try {
       let time_now = req.query.time_now;
-      const searchCourse = req.body.search;
+      let min_price = req.body.min_price;
+      let max_price = req.body.max_price;
+      let searchCourse = req.body.search;
+      let select_levels = req.body.select_levels;
+      let select_idiomas = req.body.select_idiomas;
+      let rating_selected = req.body.rating_selected;
+      let select_categories = req.body.select_categories;
+      let select_instructors = req.body.select_instructors;
 
       let campaing_home = await models.Discount.findOne({
         type_campaing: 1,
@@ -591,9 +599,120 @@ export default {
         end_date_num: { $gte: time_now }, // time_now <= end_date_num
       });
 
-      const courses = await models.Course.aggregate([
-        { $match: { state: 2, title: new RegExp(searchCourse, "i") } },
-      ]);
+      if (select_categories) {
+        select_categories = select_categories.map((str) => new ObjectId(str));
+      }
+
+      if (select_instructors) {
+        select_instructors = select_instructors.map((str) => new ObjectId(str));
+      }
+
+      let filters = [
+        {
+          $match: { state: 2 },
+        },
+      ];
+
+      if (searchCourse) {
+        filters.push({
+          $match: { title: new RegExp(searchCourse, "i") },
+        });
+      }
+
+      if (select_categories && select_categories.length > 0) {
+        filters.push({
+          $match: { categorie: { $in: select_categories } },
+        });
+      }
+
+      if (select_instructors && select_instructors.length > 0) {
+        filters.push({
+          $match: { user: { $in: select_instructors } },
+        });
+      }
+
+      if (select_levels && select_levels.length > 0) {
+        filters.push({
+          $match: { level: { $in: select_levels } },
+        });
+      }
+
+      if (select_idiomas && select_idiomas.length > 0) {
+        filters.push({
+          $match: { idioma: { $in: select_idiomas } },
+        });
+      }
+
+      if (min_price > 0 && max_price > 0) {
+        filters.push({
+          $match: { price_usd: { $gte: min_price, $lte: max_price } },
+        });
+      }
+
+      filters.push(
+        {
+          $lookup: {
+            from: "users", // nombre (en la base de datos) de la coleccion de la que viene la relación
+            localField: "user", // nombre del campo en la coleccion
+            foreignField: "_id", // cual es el campo en la coleccion que tiene relacion con el localField
+            as: "user", // nombre que le vamos a dar al resultado de esta relacion
+          },
+        },
+        {
+          $unwind: "$user",
+        }
+      );
+
+      if (rating_selected && rating_selected > 0) {
+        filters.push(
+          /**---------------------------------------------
+           * | Relación indirecta con el modelo review
+           * | ya que es en el modelo review donde esta la
+           * | relación con curso
+           * ---------------------------------------------*/
+          {
+            $lookup: {
+              from: "reviews",
+              localField: "_id",
+              foreignField: "course",
+              as: "reviews",
+            },
+          },
+          {
+            $unwind: "$reviews",
+          },
+          /**------------------------------------------------
+           * | Con esto agregamos un nuevo campo dentro del
+           * | modelo curso
+           * ------------------------------------------------*/
+          {
+            $addFields: {
+              avgRating: {
+                /**-------------------------------------------
+                 * | Calculo del promedio del campo rating
+                 * | para cada curso
+                 * -------------------------------------------*/
+                $avg: "$reviews.rating",
+              },
+            },
+          },
+          /**-----------------------------------------------------
+           * | Aqui filtramos el rating que ingrese el usuario
+           * | ejem: si el usuario ingresa 3 se filtraran entre
+           * | 2 y 3 (siempre restando uno)
+           * -----------------------------------------------------*/
+          {
+            $match: {
+              avgRating: {
+                $gt: rating_selected - 1, // mayor a
+                $lte: rating_selected, // menor o igual a
+              },
+            },
+          }
+        );
+      }
+
+      const courses = await models.Course.aggregate(filters);
 
       let listCourses = [];
 

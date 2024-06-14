@@ -10,10 +10,20 @@ const router = routerx();
 
 router
   .get("/client", [auth.verifyTienda], profileStudentController.profileStudent)
+  .get(
+    "/course/:slug",
+    [auth.verifyTienda],
+    profileStudentController.courseLeason
+  )
   .put(
     "/update",
     [auth.verifyTienda, path],
     profileStudentController.updateStudent
+  )
+  .post(
+    "/course-student",
+    [auth.verifyTienda, path],
+    profileStudentController.courseStudent
   )
   .put(
     "/review-update",
