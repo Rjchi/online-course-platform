@@ -424,21 +424,53 @@ export default {
       }
 
       let timeTotalCourse = sumarTiempos(...timeTotalSections);
-      let count_course_instructor = await models.Course.countDocuments({
+
+      let course_instructor = await models.Course.find({
         user: course.user._id,
         state: 2,
       });
 
-      const nStudents = await models.CourseStudent.countDocuments({
+      let count_course_instructor = course_instructor.length;
+
+      let avgRating_instructor = 0;
+      let nStudents_sum_total = 0;
+      let avgRating_sum_total = 0;
+      let nReviews_sum_total = 0;
+
+      for (let course_inst of course_instructor) {
+        let nStudents_c = await models.CourseStudent.countDocuments({
+          course: course_inst._id,
+        });
+
+        let reviews_c = await models.Review.find({ course: course_inst._id });
+
+        let avgRating_c =
+          reviews_c.length > 0
+            ? (
+                reviews_c.reduce((sum, review) => sum + review.rating, 0) /
+                reviews_c.length
+              ).toFixed(2)
+            : 0;
+
+        let nReviews_c = reviews_c.length;
+
+        nStudents_sum_total += nStudents_c;
+        nReviews_sum_total += nReviews_c;
+        avgRating_sum_total += avgRating_c;
+      }
+
+      avgRating_instructor = (avgRating_sum_total / nReviews_sum_total).toFixed(2);
+
+      let nStudents = await models.CourseStudent.countDocuments({
         course: course._id,
       });
 
-      const reviews = await models.Review.find({ course: course._id });
+      let reviews = await models.Review.find({ course: course._id });
 
       /**---------------------------------
        * | Promedio ponderado del curso
        * ---------------------------------*/
-      const avgRating =
+      let avgRating =
         reviews.length > 0
           ? (
               reviews.reduce((sum, review) => sum + review.rating, 0) /
@@ -446,7 +478,7 @@ export default {
             ).toFixed(2)
           : 0;
 
-      const nReviews = reviews.length;
+      let nReviews = reviews.length;
 
       return res.status(200).json({
         course: apiResource.Course.apiResourceCourseLanding(
@@ -458,7 +490,10 @@ export default {
           count_course_instructor,
           nStudents,
           avgRating,
-          nReviews
+          nReviews,
+          nStudents_sum_total,
+          nReviews_sum_total,
+          avgRating_instructor,
         ),
         course_student: courseStudent,
       });
