@@ -49,7 +49,10 @@ export default {
     count_course_instructor = 0,
     n_students = 0,
     avg_rating = 0,
-    n_reviews = 0
+    n_reviews = 0,
+    nStudents_sum_total = 0,
+    nReviews_sum_total = 0,
+    avgRating_instructor = 0
   ) => {
     return {
       _id: course._id,
@@ -62,6 +65,9 @@ export default {
         count_course: count_course_instructor,
         profession: course.user.profession,
         description: course.user.description,
+        num_students: nStudents_sum_total,
+        num_reviews: nReviews_sum_total,
+        avg_rating: avgRating_instructor,
         avatar: course.user.avatar
           ? process.env.URL_BACKEND +
             "/api/home/imagen-usuario/" +
